@@ -138,7 +138,7 @@ export function Header() {
             exit={{ opacity: 0, height: 0 }}
             className="lg:hidden glass border-t border-border"
           >
-            <div className="container-custom py-4 space-y-2">
+            <div className="container-custom py-4 space-y-2 max-h-[70vh] overflow-y-auto">
               {navigation.map((item) => (
                 <div key={item.name}>
                   {item.hasDropdown ? (

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Zap, Brain, Shield, BarChart3, Cpu, Globe, Code } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TiltCard } from "@/components/TiltCard";
 
 interface FeatureCardProps {
   icon: React.ComponentType<{ className?: string }>;
@@ -43,22 +44,25 @@ const features = [
 ];
 
 const FeatureCard = ({ icon: Icon, title, description, delay }: FeatureCardProps) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.5, delay: delay * 0.1 }}
-    className="group relative overflow-hidden rounded-2xl bg-card p-6 shadow-lg transition-all duration-300 hover:shadow-xl dark:shadow-primary/10"
-  >
-    <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10 transition-all duration-500 group-hover:scale-150" />
-    <div className="relative z-10">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <Icon className="h-6 w-6" />
+  <TiltCard>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay: delay * 0.1 }}
+      className="group relative overflow-hidden rounded-2xl bg-card p-6 shadow-lg transition-all duration-300 hover:shadow-xl dark:shadow-primary/10 h-full"
+      data-parallax="0.03"
+    >
+      <div className="absolute -right-10 -top-10 h-24 w-24 rounded-full bg-primary/10 transition-all duration-500 group-hover:scale-150" />
+      <div className="relative z-10">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Icon className="h-6 w-6" />
+        </div>
+        <h3 className="mb-2 text-xl font-bold text-foreground">{title}</h3>
+        <p className="text-muted-foreground">{description}</p>
       </div>
-      <h3 className="mb-2 text-xl font-bold text-foreground">{title}</h3>
-      <p className="text-muted-foreground">{description}</p>
-    </div>
-  </motion.div>
+    </motion.div>
+  </TiltCard>
 );
 
 export function FeaturesSection() {
@@ -74,7 +78,8 @@ export function FeaturesSection() {
           <motion.span 
             className="inline-block rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary"
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
             Powerful Features
@@ -82,7 +87,8 @@ export function FeaturesSection() {
           <motion.h2 
             className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.3 }}
           >
             Everything You Need to Succeed
@@ -90,7 +96,8 @@ export function FeaturesSection() {
           <motion.p 
             className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground"
             initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.4 }}
           >
             Discover the powerful features that make our platform the perfect choice for your business.

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Typewriter } from "@/components/Typewriter";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const missionStatement =
@@ -16,7 +17,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-background to-background/95">
       {/* Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0" data-parallax="-0.2">
         <motion.img
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.4 }}
@@ -33,11 +34,13 @@ export function HeroSection() {
         animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[120px] pointer-events-none"
+        data-parallax="0.15"
       />
       <motion.div
         animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.05, 1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 2 }}
         className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/20 rounded-full blur-[100px] pointer-events-none"
+        data-parallax="0.1"
       />
 
       <div className="container-custom relative z-10 py-20">
@@ -66,9 +69,21 @@ export function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 font-['Space_Grotesk'] bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 font-['Space_Grotesk']"
           >
-            AI That Grows Your Business
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
+              AI That{" "}
+              <Typewriter
+                phrases={[
+                  "Grows Your Business",
+                  "Automates Everything",
+                  "Scales Revenue",
+                  "Saves You Time",
+                  "Boosts Conversions"
+                ]}
+                className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent"
+              />
+            </span>
             <motion.span
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -159,6 +174,7 @@ export function HeroSection() {
           animate={{ y: [-10, 10, -10] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 w-96 h-96"
+          data-parallax="0.1"
         >
           <motion.div animate={{ rotate: 360 }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute inset-0 rounded-full border border-primary/20" />
           <motion.div animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute inset-8 rounded-full border border-accent/20" />

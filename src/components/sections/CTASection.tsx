@@ -24,7 +24,7 @@ export function CTASection({
   return (
     <section className="section-padding relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0" data-parallax="-0.15">
         <img
           src={heroBg}
           alt="CTA Background"

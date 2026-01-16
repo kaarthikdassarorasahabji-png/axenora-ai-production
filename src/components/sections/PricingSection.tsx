@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Check, Zap, Sparkles, Rocket, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 type Plan = {
   name: string;
@@ -117,21 +118,16 @@ const PricingCard = ({ plan }: { plan: Plan }) => {
         }`}
         asChild
       >
-        {plan.buttonText === "Start Free Trial" ? (
-          <a href="tel:+917814051678">
+        {plan.buttonText === "Contact Sales" ? (
+          <Link to="/contact">
             {plan.buttonText}
             {!plan.isPopular && <ArrowRight className="ml-2 h-4 w-4" />}
-          </a>
-        ) : plan.buttonText === "Contact Sales" ? (
-          <a href="https://wa.me/917814051678?text=I'm%20interested%20in%20a%20demo%20of%20Axenora%20AI." target="_blank" rel="noopener noreferrer">
-            {plan.buttonText}
-            {!plan.isPopular && <ArrowRight className="ml-2 h-4 w-4" />}
-          </a>
+          </Link>
         ) : (
-          <>
+          <Link to="/pricing">
             {plan.buttonText}
             {!plan.isPopular && <ArrowRight className="ml-2 h-4 w-4" />}
-          </>
+          </Link>
         )}
       </Button>
     </motion.div>
@@ -191,10 +187,12 @@ export function PricingSection() {
           transition={{ delay: 0.2 }}
         >
           <p className="text-muted-foreground mb-6">Need something more customized?</p>
-          <Button variant="outline" size="lg" className="group">
-            Contact Sales
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          <Link to="/contact">
+            <Button variant="outline" size="lg" className="group">
+              Contact Sales
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
         </motion.div>
       </div>
     </section>
