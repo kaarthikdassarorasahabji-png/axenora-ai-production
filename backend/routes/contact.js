@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
-import Contact from '../models/Contact.js';
+import { supabase } from '../config/supabase.js';
 import { sendContactEmail } from '../services/email.js';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.post('/',
   [
     body('name').trim().notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Valid email is required'),
-    body('phone').notEmpty().withMessage('Phone is required'),
+    body('phone').optional({ checkFalsy: true }).trim(),
     body('message').trim().notEmpty().withMessage('Message is required')
   ],
   async (req, res) => {
@@ -27,15 +27,24 @@ router.post('/',
 
       const { name, email, phone, company, message, service } = req.body;
 
-      // Create contact
-      const contact = await Contact.create({
-        name,
-        email,
-        phone,
-        company,
-        message,
-        service
-      });
+      // Create contact in Supabase
+      const { data: contact, error } = await supabase
+        .from('contacts')
+        .insert({
+          name,
+          email,
+          phone: phone || '',
+          company,
+          message,
+          service
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
 
       // Send email notification
       await sendContactEmail({
@@ -60,7 +69,7 @@ router.post('/',
       res.status(201).json({
         success: true,
         message: 'Thank you! We will get back to you soon.',
-        data: { id: contact._id }
+        data: { id: contact.id }
       });
 
     } catch (error) {
@@ -78,9 +87,15 @@ router.post('/',
 // @access  Private/Admin
 router.get('/', async (req, res) => {
   try {
-    const contacts = await Contact.find()
-      .sort({ createdAt: -1 })
-      .populate('assignedTo', 'name email');
+    const { data: contacts, error } = await supabase
+      .from('contacts')
+      .select(`
+        *,
+        assigned_to_user:profiles!assigned_to(id, name, email)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
 
     res.json({
       success: true,
@@ -88,6 +103,7 @@ router.get('/', async (req, res) => {
       data: contacts
     });
   } catch (error) {
+    console.error('Get contacts error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch contacts'

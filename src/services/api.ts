@@ -1,9 +1,14 @@
+import { supabase } from '@/lib/supabase';
+import { API_BASE_URL as API_CONFIG } from '@/lib/api';
+
 // API base URL configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = `${API_CONFIG}/api`;
 
 // Helper function for API requests
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('token');
+  // Get token from Supabase session
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
   
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -95,7 +100,7 @@ export const bookingAPI = {
   },
 };
 
-// Auth API
+// Auth API (using Supabase Auth)
 export const authAPI = {
   register: async (userData: {
     name: string;
@@ -104,44 +109,94 @@ export const authAPI = {
     phone?: string;
     company?: string;
   }) => {
-    return apiRequest('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(userData),
+    const { data, error } = await supabase.auth.signUp({
+      email: userData.email,
+      password: userData.password,
+      options: {
+        data: {
+          name: userData.name,
+          phone: userData.phone,
+          company: userData.company
+        }
+      }
     });
-  },
-  login: async (email: string, password: string) => {
-    const data = await apiRequest('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    
-    if (data.token) {
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+
+    if (error) throw new Error(error.message);
+
+    // Create profile
+    if (data.user) {
+      await supabase.from('profiles').insert({
+        id: data.user.id,
+        name: userData.name,
+        phone: userData.phone,
+        company: userData.company,
+        role: 'user'
+      });
     }
-    
+
     return data;
   },
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  login: async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+  logout: async () => {
+    await supabase.auth.signOut();
   },
   getCurrentUser: async () => {
-    return apiRequest('/auth/me');
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) throw error;
+
+    if (!user) return null;
+
+    // Get profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    return {
+      user,
+      profile
+    };
   },
+  getSession: async () => {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return session;
+  }
 };
 
-// Payment API
+// Payment API (Razorpay)
 export const paymentAPI = {
-  createPaymentIntent: async (paymentData: {
+  createOrder: async (orderData: {
     amount: number;
     currency?: string;
     service: string;
     plan?: string;
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
   }) => {
-    return apiRequest('/payments/create-payment-intent', {
+    return apiRequest('/payments/create-order', {
       method: 'POST',
-      body: JSON.stringify(paymentData),
+      body: JSON.stringify(orderData),
+    });
+  },
+  verifyPayment: async (verifyData: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => {
+    return apiRequest('/payments/verify', {
+      method: 'POST',
+      body: JSON.stringify(verifyData),
     });
   },
   getPayments: async () => {

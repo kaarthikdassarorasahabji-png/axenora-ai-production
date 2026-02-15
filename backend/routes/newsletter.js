@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
-import Newsletter from '../models/Newsletter.js';
+import { supabase } from '../config/supabase.js';
 import { sendWelcomeEmail } from '../services/email.js';
 
 const router = express.Router();
@@ -25,24 +25,42 @@ router.post('/subscribe',
       const { email, name } = req.body;
 
       // Check if already subscribed
-      let subscriber = await Newsletter.findOne({ email });
+      const { data: existing } = await supabase
+        .from('newsletters')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .single();
 
-      if (subscriber) {
-        if (subscriber.status === 'active') {
+      if (existing) {
+        if (existing.status === 'active') {
           return res.status(400).json({
             success: false,
             message: 'You are already subscribed to our newsletter!'
           });
         } else {
           // Resubscribe
-          subscriber.status = 'active';
-          subscriber.name = name || subscriber.name;
-          subscriber.subscribedAt = new Date();
-          await subscriber.save();
+          const { error } = await supabase
+            .from('newsletters')
+            .update({
+              status: 'active',
+              name: name || existing.name,
+              subscribed_at: new Date().toISOString(),
+              unsubscribed_at: null
+            })
+            .eq('id', existing.id);
+
+          if (error) throw error;
         }
       } else {
         // New subscriber
-        subscriber = await Newsletter.create({ email, name });
+        const { error } = await supabase
+          .from('newsletters')
+          .insert({
+            email: email.toLowerCase(),
+            name
+          });
+
+        if (error) throw error;
       }
 
       // Send welcome email
@@ -74,7 +92,11 @@ router.post('/unsubscribe',
     try {
       const { email } = req.body;
 
-      const subscriber = await Newsletter.findOne({ email });
+      const { data: subscriber } = await supabase
+        .from('newsletters')
+        .select('*')
+        .eq('email', email.toLowerCase())
+        .single();
 
       if (!subscriber) {
         return res.status(404).json({
@@ -83,9 +105,15 @@ router.post('/unsubscribe',
         });
       }
 
-      subscriber.status = 'unsubscribed';
-      subscriber.unsubscribedAt = new Date();
-      await subscriber.save();
+      const { error } = await supabase
+        .from('newsletters')
+        .update({
+          status: 'unsubscribed',
+          unsubscribed_at: new Date().toISOString()
+        })
+        .eq('id', subscriber.id);
+
+      if (error) throw error;
 
       res.json({
         success: true,
@@ -93,6 +121,7 @@ router.post('/unsubscribe',
       });
 
     } catch (error) {
+      console.error('Unsubscribe error:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to unsubscribe'

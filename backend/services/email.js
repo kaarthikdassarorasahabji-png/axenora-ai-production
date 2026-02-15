@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import {
   contactEmailTemplate,
   thankYouEmailTemplate,
@@ -6,18 +6,13 @@ import {
   bookingConfirmationTemplate
 } from './emailTemplates.js';
 
-// Create transporter
-const createTransporter = () => {
-  return nodemailer.createTransporter({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS
-    }
-  });
+// Initialize Resend client
+const getResend = () => {
+  return new Resend(process.env.RESEND_API_KEY);
 };
+
+// Sender address — use your verified domain or Resend's onboarding address
+const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || 'Axenora AI <onboarding@resend.dev>';
 
 // Send contact form email
 export const sendContactEmail = async ({
@@ -32,20 +27,24 @@ export const sendContactEmail = async ({
   isThankYou = false
 }) => {
   try {
-    const transporter = createTransporter();
+    const resend = getResend();
 
     const htmlContent = isThankYou
       ? thankYouEmailTemplate(name)
       : contactEmailTemplate({ name, email, phone, company, message, service });
 
-    await transporter.sendMail({
-      from: `"Axenora AI" <${process.env.SMTP_USER}>`,
-      to,
+    const { data, error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: [to],
       subject,
       html: htmlContent
     });
 
-    console.log('✅ Email sent successfully to:', to);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log('✅ Email sent successfully to:', to, '| ID:', data?.id);
     return true;
   } catch (error) {
     console.error('❌ Email sending failed:', error);
@@ -56,16 +55,20 @@ export const sendContactEmail = async ({
 // Send welcome email for newsletter
 export const sendWelcomeEmail = async (email, name) => {
   try {
-    const transporter = createTransporter();
+    const resend = getResend();
 
-    await transporter.sendMail({
-      from: `"Axenora AI" <${process.env.SMTP_USER}>`,
-      to: email,
+    const { data, error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: [email],
       subject: 'Welcome to Axenora AI Newsletter! 🚀',
       html: welcomeEmailTemplate(name)
     });
 
-    console.log('✅ Welcome email sent to:', email);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log('✅ Welcome email sent to:', email, '| ID:', data?.id);
     return true;
   } catch (error) {
     console.error('❌ Welcome email failed:', error);
@@ -83,16 +86,20 @@ export const sendBookingConfirmation = async ({
   bookingId
 }) => {
   try {
-    const transporter = createTransporter();
+    const resend = getResend();
 
-    await transporter.sendMail({
-      from: `"Axenora AI" <${process.env.SMTP_USER}>`,
-      to,
+    const { data, error } = await resend.emails.send({
+      from: FROM_ADDRESS,
+      to: [to],
       subject: 'Booking Confirmation - Axenora AI',
       html: bookingConfirmationTemplate({ name, service, date, timeSlot, bookingId })
     });
 
-    console.log('✅ Booking confirmation sent to:', to);
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    console.log('✅ Booking confirmation sent to:', to, '| ID:', data?.id);
     return true;
   } catch (error) {
     console.error('❌ Booking confirmation failed:', error);

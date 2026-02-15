@@ -28,7 +28,7 @@ const KNOWLEDGE_BASE = {
     founder: "Kaarthik Dass Arora",
     mission: "Axenora AI transforms businesses with cutting-edge AI automation, helping companies scale revenue, save time, and boost conversions.",
     contact: "+91 7814051678",
-    email: "contact@axenora.ai",
+    email: "contact@axenoraai.in",
   },
 };
 

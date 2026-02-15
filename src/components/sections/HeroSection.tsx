@@ -61,7 +61,7 @@ export function HeroSection() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="w-2 h-2 rounded-full bg-primary"
               />
-              Trusted by 500+ businesses worldwide
+              Powering AI for Growing Indian Businesses
             </motion.span>
           </motion.div>
 
@@ -158,11 +158,16 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
           >
-            <p className="text-sm text-muted-foreground mb-4 text-center">TRUSTED BY INNOVATIVE TEAMS</p>
-            <div className="flex flex-wrap items-center justify-center gap-8 opacity-70 grayscale hover:grayscale-0 transition-all">
-              {['TechCrunch', 'Forbes', 'YCombinator', 'Product Hunt', 'The Verge'].map((logo) => (
-                <div key={logo} className="text-lg font-medium text-foreground/80">
-                  {logo}
+            <div className="flex flex-wrap items-center justify-center gap-8">
+              {[
+                { value: '50+', label: 'Businesses Served' },
+                { value: '5+', label: 'AI Solutions' },
+                { value: '99%', label: 'Client Satisfaction' },
+                { value: '24/7', label: 'AI Support' },
+              ].map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">{stat.value}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>

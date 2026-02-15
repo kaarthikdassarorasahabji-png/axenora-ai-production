@@ -1,34 +1,67 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import { supabase } from '../config/supabase.js';
 
-// Protect routes - verify JWT token
+// Protect routes - verify Supabase JWT token
 export const protect = async (req, res, next) => {
   try {
-    let token;
+    const authHeader = req.headers.authorization;
+    
+    // console.log(`[Auth Debug] ${req.method} ${req.originalUrl} - Auth Header:`, authHeader ? 'Present' : 'Missing');
 
-    // Check for token in headers
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('[Auth Debug] Invalid header format');
       return res.status(401).json({
         success: false,
         message: 'Not authorized, no token'
       });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const token = authHeader.split(' ')[1];
 
-    // Get user from token
-    req.user = await User.findById(decoded.id).select('-password');
+    // Verify token with Supabase
+    const { data: { user }, error } = await supabase.auth.getUser(token);
 
-    if (!req.user) {
+    if (error) {
+        console.error('[Auth Debug] Supabase Verify Error:', error.message);
+    }
+
+    if (error || !user) {
+      console.log('[Auth Debug] No user found or error');
       return res.status(401).json({
         success: false,
-        message: 'User not found'
+        message: 'Not authorized, invalid token'
       });
+    }
+    
+    console.log('[Auth Debug] User verified:', user.id);
+
+    // Get user profile with role (use maybeSingle to avoid errors on missing profile)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!profile) {
+      // Try to create profile silently (trigger should handle this, but as backup)
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .upsert({
+            id: user.id,
+            name: user.email?.split('@')[0] || 'User',
+            email: user.email,
+            role: 'user', 
+        }, { onConflict: 'id' })
+        .select()
+        .single();
+        
+      if (!insertError && newProfile) {
+         req.user = { ...user, ...newProfile };
+      } else {
+         // Fallback if insert fails (e.g., trigger already created it)
+         req.user = { ...user, role: 'user', email: user.email };
+      }
+    } else {
+        req.user = { ...user, ...profile };
     }
 
     next();
@@ -41,9 +74,9 @@ export const protect = async (req, res, next) => {
   }
 };
 
-// Admin only middleware
+// Admin middleware
 export const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'super_admin')) {
     next();
   } else {
     res.status(403).json({

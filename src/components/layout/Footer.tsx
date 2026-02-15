@@ -11,7 +11,6 @@ const footerLinks = {
   ],
   company: [
     { name: "About", href: "/about" },
-    { name: "Growth Hub", href: "/growth-hub" },
     { name: "How It Works", href: "/how-it-works" },
     { name: "Pricing", href: "/pricing" },
     { name: "Contact", href: "/contact" },
@@ -26,25 +25,20 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-6">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-xl font-bold text-white">A</span>
-              </div>
-              <span className="text-xl font-bold font-['Space_Grotesk']">
-                Axenora <span className="gradient-text">AI</span>
-              </span>
+              <img src="/Logo.png" alt="Axenora AI" className="h-10 w-auto" />
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed mb-6">
               AI systems that build, run & scale businesses. We install intelligent 
               systems that automate customer engagement, follow-ups, and business growth.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
+              <a href="https://linkedin.com/in/kaarthikdassarora" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
                 <Linkedin className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
+              <a href="https://twitter.com/kaarthikdass" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
+              <a href="https://instagram.com/kaarthikdassarora" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
                 <Instagram className="w-5 h-5" />
               </a>
             </div>
@@ -99,11 +93,11 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="mailto:kaarthikdassarorasahabji@gmail.com"
+                  href="mailto:contact@axenoraai.in"
                   className="flex items-center gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  kaarthikdassarorasahabji@gmail.com
+                  contact@axenoraai.in
                 </a>
               </li>
               <li className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -119,11 +113,14 @@ export function Footer() {
             © {new Date().getFullYear()} Axenora AI. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Privacy Policy
             </Link>
-            <Link to="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+            <Link to="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Terms of Service
+            </Link>
+            <Link to="/refund" className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              Refund Policy
             </Link>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { CTASection } from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/button";
@@ -118,10 +119,12 @@ const HowItWorks = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap justify-center gap-4"
             >
-              <Button size="lg" className="group">
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
+              <Link to="/contact">
+                <Button size="lg" className="group">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
               <Button variant="outline" size="lg" asChild>
                 <a href="https://wa.me/917814051678?text=I'm%20interested%20in%20a%20demo%20of%20Axenora%20AI." target="_blank" rel="noopener noreferrer">
                   Watch Demo

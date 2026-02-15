@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { Layout } from "@/components/layout/Layout";
 import { FeaturesSection } from "@/components/sections/FeaturesSection";
 import { CTASection } from "@/components/sections/CTASection";
@@ -40,8 +41,8 @@ export default function Features() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <Button size="lg" className="mr-4">Get Started</Button>
-              <Button variant="outline" size="lg">Learn More</Button>
+              <Link to="/contact"><Button size="lg" className="mr-4">Get Started</Button></Link>
+              <Link to="/how-it-works"><Button variant="outline" size="lg">Learn More</Button></Link>
             </motion.div>
           </div>
         </div>

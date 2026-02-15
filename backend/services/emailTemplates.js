@@ -1,4 +1,4 @@
-// Base email template with Axenora AI branding
+// Base email template with Axenora AI branding - Cyber Green/Cyan Theme
 const baseTemplate = (content) => `
 <!DOCTYPE html>
 <html lang="en">
@@ -11,37 +11,36 @@ const baseTemplate = (content) => `
       margin: 0;
       padding: 0;
       font-family: 'Arial', sans-serif;
-      background-color: #0a0a0f;
+      background-color: #060d14;
       color: #e0e0e0;
     }
     .container {
       max-width: 600px;
       margin: 0 auto;
-      background-color: #151520;
+      background-color: #0c1a25;
       border-radius: 12px;
       overflow: hidden;
+      border: 1px solid rgba(0, 210, 180, 0.15);
     }
     .header {
-      background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
+      background: linear-gradient(135deg, #00d4b4 0%, #22c55e 100%);
       padding: 40px 20px;
       text-align: center;
     }
     .header h1 {
       margin: 0;
-      color: #ffffff;
+      color: #060d14;
       font-size: 32px;
       font-weight: bold;
     }
     .header .logo-text {
-      background: linear-gradient(90deg, #a855f7, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #060d14;
     }
     .content {
       padding: 40px 30px;
     }
     .content h2 {
-      color: #a855f7;
+      color: #00d4b4;
       margin-top: 0;
     }
     .content p {
@@ -52,16 +51,16 @@ const baseTemplate = (content) => `
     .button {
       display: inline-block;
       padding: 14px 32px;
-      background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
-      color: #ffffff;
+      background: linear-gradient(135deg, #00d4b4 0%, #22c55e 100%);
+      color: #060d14;
       text-decoration: none;
       border-radius: 8px;
       font-weight: bold;
       margin: 20px 0;
     }
     .info-box {
-      background-color: #1a1a2e;
-      border-left: 4px solid #a855f7;
+      background-color: #0f2233;
+      border-left: 4px solid #00d4b4;
       padding: 20px;
       margin: 20px 0;
       border-radius: 6px;
@@ -70,10 +69,10 @@ const baseTemplate = (content) => `
       margin: 8px 0;
     }
     .info-box strong {
-      color: #a855f7;
+      color: #00d4b4;
     }
     .footer {
-      background-color: #0a0a0f;
+      background-color: #060d14;
       padding: 30px 20px;
       text-align: center;
       color: #666;
@@ -86,7 +85,7 @@ const baseTemplate = (content) => `
       margin: 20px 0;
     }
     .social-links a {
-      color: #a855f7;
+      color: #00d4b4;
       text-decoration: none;
       margin: 0 10px;
     }
@@ -102,11 +101,11 @@ const baseTemplate = (content) => `
       <p><strong>Axenora AI</strong> - Transforming Business with AI</p>
       <p>Founder: Kaarthik Dass Arora</p>
       <div class="social-links">
-        <a href="https://axenora.ai">Website</a> |
-        <a href="mailto:contact@axenora.ai">Contact</a>
+        <a href="https://axenoraai.in">Website</a> |
+        <a href="mailto:contact@axenoraai.in">Contact</a>
       </div>
       <p style="margin-top: 20px; font-size: 12px;">
-        © 2026 Axenora AI. All rights reserved.
+        &copy; 2026 Axenora AI. All rights reserved.
       </p>
     </div>
   </div>
@@ -147,7 +146,7 @@ export const thankYouEmailTemplate = (name) => {
       
       <p>In the meantime, feel free to explore our services:</p>
       
-      <a href="https://axenora.ai/solutions" class="button">Explore Solutions</a>
+      <a href="https://axenoraai.in/solutions" class="button">Explore Solutions</a>
       
       <div class="info-box">
         <p><strong>What to expect next:</strong></p>
@@ -180,7 +179,7 @@ export const welcomeEmailTemplate = (name) => {
       
       <p>Get started by exploring our solutions:</p>
       
-      <a href="https://axenora.ai/solutions" class="button">Explore Solutions</a>
+      <a href="https://axenoraai.in/solutions" class="button">Explore Solutions</a>
       
       <p>Looking forward to helping you scale your business!</p>
       <p>Best regards,<br><strong>Kaarthik Dass Arora</strong><br>Founder, Axenora AI</p>
@@ -219,9 +218,9 @@ export const bookingConfirmationTemplate = ({ name, service, date, timeSlot, boo
       
       <p>You'll receive a meeting link closer to your appointment time.</p>
       
-      <a href="https://axenora.ai/bookings/${bookingId}" class="button">View Booking Details</a>
+      <a href="https://axenoraai.in/bookings/${bookingId}" class="button">View Booking Details</a>
       
-      <p>Need to reschedule? Contact us at <a href="mailto:contact@axenora.ai" style="color: #a855f7;">contact@axenora.ai</a></p>
+      <p>Need to reschedule? Contact us at <a href="mailto:contact@axenoraai.in" style="color: #00d4b4;">contact@axenoraai.in</a></p>
       
       <p>See you soon!<br><strong>Axenora AI Team</strong></p>
     </div>

@@ -1,13 +1,21 @@
 import express from 'express';
-import Analytics from '../models/Analytics.js';
+import rateLimit from 'express-rate-limit'; // Import rateLimit
+import { supabase } from '../config/supabase.js';
 import { protect, admin } from '../middleware/auth.js';
 
 const router = express.Router();
 
+// Rate limiter for tracking events (e.g., 100 requests per 15 minutes)
+const trackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
+  message: { success: false, message: 'Too many requests, please try again later.' }
+});
+
 // @route   POST /api/analytics/track
 // @desc    Track analytics event
 // @access  Public
-router.post('/track', async (req, res) => {
+router.post('/track', trackLimiter, async (req, res) => {
   try {
     const { event, page, sessionId, metadata } = req.body;
 
@@ -23,15 +31,15 @@ router.post('/track', async (req, res) => {
     const userAgent = req.headers['user-agent'];
     const referrer = req.headers.referer || req.headers.referrer;
 
-    await Analytics.create({
+    await supabase.from('analytics').insert({
       event,
       page,
-      sessionId,
-      ipAddress,
-      userAgent,
+      session_id: sessionId,
+      ip_address: ipAddress,
+      user_agent: userAgent,
       referrer,
       metadata,
-      userId: req.user?._id // If authenticated
+      user_id: req.user?.id // If authenticated
     });
 
     res.json({
@@ -55,85 +63,72 @@ router.get('/stats', protect, admin, async (req, res) => {
   try {
     const { startDate, endDate, event } = req.query;
 
-    const query = {};
+    // Build base query
+    let query = supabase.from('analytics').select('*', { count: 'exact' });
 
-    // Date range filter
-    if (startDate || endDate) {
-      query.timestamp = {};
-      if (startDate) query.timestamp.$gte = new Date(startDate);
-      if (endDate) query.timestamp.$lte = new Date(endDate);
+    if (startDate) {
+      query = query.gte('timestamp', startDate);
     }
-
-    // Event filter
+    if (endDate) {
+      query = query.lte('timestamp', endDate);
+    }
     if (event) {
-      query.event = event;
+      query = query.eq('event', event);
     }
 
-    // Get total events
-    const totalEvents = await Analytics.countDocuments(query);
+    const { count: totalEvents } = await query;
 
-    // Get events by type
-    const eventsByType = await Analytics.aggregate([
-      { $match: query },
-      {
-        $group: {
-          _id: '$event',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } }
-    ]);
+    // Get events by type (using RPC for aggregation)
+    const { data: eventsByType } = await supabase.rpc('get_events_by_type', {
+      start_date: startDate || null,
+      end_date: endDate ||null,
+      event_filter: event || null
+    }).catch(() => ({ data: [] })); // Fallback if RPC doesn't exist
 
     // Get page views
-    const pageViews = await Analytics.aggregate([
-      {
-        $match: {
-          ...query,
-          event: 'page_view'
-        }
-      },
-      {
-        $group: {
-          _id: '$page',
-          views: { $sum: 1 }
-        }
-      },
-      { $sort: { views: -1 } },
-      { $limit: 10 }
-    ]);
+    const { data: pageViews } = await supabase.rpc('get_page_views', {
+      start_date: startDate || null,
+      end_date: endDate || null
+    }).catch(() => ({ data: [] }));
 
     // Get unique sessions
-    const uniqueSessions = await Analytics.distinct('sessionId', query);
+    const { data: sessionData } = await supabase
+      .from('analytics')
+      .select('session_id')
+      .not('session_id', 'is', null);
 
-    // Get events over time (last 7 days)
+    const uniqueSessions = new Set(sessionData?.map(d => d.session_id)).size;
+
+    // Get events over time (last 7 days) - simplified version
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const eventsOverTime = await Analytics.aggregate([
-      {
-        $match: {
-          timestamp: { $gte: sevenDaysAgo }
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$timestamp' }
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { _id: 1 } }
-    ]);
+    const { data: recentEvents } = await supabase
+      .from('analytics')
+      .select('timestamp')
+      .gte('timestamp', sevenDaysAgo.toISOString())
+      .order('timestamp', { ascending: true });
+
+    // Group by date on client side (since we don't have complex aggregation RPCs)
+    const eventsOverTime = {};
+    recentEvents?.forEach(e => {
+      const date = new Date(e.timestamp).toISOString().split('T')[0];
+      eventsOverTime[date] = (eventsOverTime[date] || 0) + 1;
+    });
+
+    const eventsOverTimeArray = Object.keys(eventsOverTime).map(date => ({
+      _id: date,
+      count: eventsOverTime[date]
+    }));
 
     res.json({
       success: true,
       data: {
-        totalEvents,
-        uniqueSessions: uniqueSessions.length,
-        eventsByType,
-        pageViews,
-        eventsOverTime
+        totalEvents: totalEvents || 0,
+        uniqueSessions,
+        eventsByType: eventsByType || [],
+        pageViews: pageViews || [],
+        eventsOverTime: eventsOverTimeArray
       }
     });
 
@@ -153,14 +148,17 @@ router.get('/events', protect, admin, async (req, res) => {
   try {
     const { page = 1, limit = 50, event } = req.query;
 
-    const query = event ? { event } : {};
+    let query = supabase
+      .from('analytics')
+      .select('*', { count: 'exact' })
+      .order('timestamp', { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
 
-    const events = await Analytics.find(query)
-      .sort({ timestamp: -1 })
-      .limit(parseInt(limit))
-      .skip((parseInt(page) - 1) * parseInt(limit));
+    if (event) {
+      query = query.eq('event', event);
+    }
 
-    const total = await Analytics.countDocuments(query);
+    const { data: events, count: total } = await query;
 
     res.json({
       success: true,
@@ -174,6 +172,7 @@ router.get('/events', protect, admin, async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Fetch events error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch events'

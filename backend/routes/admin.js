@@ -1,200 +1,257 @@
 import express from 'express';
+import { supabase } from '../config/supabase.js';
 import { protect, admin } from '../middleware/auth.js';
-import User from '../models/User.js';
-import Contact from '../models/Contact.js';
-import Newsletter from '../models/Newsletter.js';
-import Booking from '../models/Booking.js';
-import Payment from '../models/Payment.js';
-import Analytics from '../models/Analytics.js';
 
 const router = express.Router();
 
-// All routes are protected and admin-only
-router.use(protect, admin);
-
-// @route   GET /api/admin/dashboard
+// @route   GET /api/admin/analytics/overview
 // @desc    Get dashboard overview stats
 // @access  Private/Admin
-router.get('/dashboard', async (req, res) => {
+router.get('/analytics/overview', protect, admin, async (req, res) => {
   try {
-    const [
-      totalUsers,
-      totalContacts,
-      totalSubscribers,
-      totalBookings,
-      totalRevenue,
-      recentContacts,
-      recentBookings
-    ] = await Promise.all([
-      User.countDocuments(),
-      Contact.countDocuments(),
-      Newsletter.countDocuments({ status: 'active' }),
-      Booking.countDocuments(),
-      Payment.aggregate([
-        { $match: { status: 'succeeded' } },
-        { $group: { _id: null, total: { $sum: '$amount' } } }
-      ]),
-      Contact.find().sort({ createdAt: -1 }).limit(5),
-      Booking.find().sort({ createdAt: -1 }).limit(5)
-    ]);
+    // Mock data for now - in production this would query real tables
+    // We'll implement real queries as we populate data
+    
+    // 1. Total Revenue (sum of all completed orders)
+    const { data: revenueData, error: revenueError } = await supabase
+      .from('orders')
+      .select('total_amount')
+      .eq('payment_status', 'paid');
+      
+    // Debug logging
+    console.log('Revenue Data:', revenueData);
+    
+    // Ensure total_amount is parsed as float
+    const totalRevenue = revenueData?.reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0) || 0;
+
+    // 2. Active Clients (count of users with at least one order)
+    const { count: activeClients } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    // 3. Pending Orders
+    const { count: pendingOrders } = await supabase
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    // 4. Active Services (count of running services)
+    const { count: activeServices } = await supabase
+      .from('user_services') 
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
+
+    const responseData = {
+      revenue: totalRevenue,
+      activeClients: activeClients || 0, 
+      pendingOrders: pendingOrders || 0,
+      activeServices: activeServices || 0 
+    };
+
+    console.log('Admin Dashboard Stats Response:', responseData);
 
     res.json({
       success: true,
-      data: {
-        stats: {
-          totalUsers,
-          totalContacts,
-          totalSubscribers,
-          totalBookings,
-          totalRevenue: totalRevenue[0]?.total || 0
-        },
-        recentContacts,
-        recentBookings
-      }
+      data: responseData
     });
+
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch dashboard data'
-    });
+    console.error('Error in analytics/overview:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
-// @route   GET /api/admin/users
-// @desc    Get all users
+// @route   GET /api/admin/clients
+// @desc    Get all clients
 // @access  Private/Admin
-router.get('/users', async (req, res) => {
+router.get('/clients', protect, admin, async (req, res) => {
   try {
-    const users = await User.find().select('-password').sort({ createdAt: -1 });
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
 
     res.json({
       success: true,
       count: users.length,
       data: users
     });
+
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch users'
-    });
+    console.error('Error fetching clients:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
-// @route   PUT /api/admin/users/:id
-// @desc    Update user
+// @route   PUT /api/admin/clients/:id/suspend
+// @desc    Suspend/Activate a client
 // @access  Private/Admin
-router.put('/users/:id', async (req, res) => {
+router.put('/clients/:id/suspend', protect, admin, async (req, res) => {
   try {
-    const { role, isVerified } = req.body;
+    const { id } = req.params;
+    const { status } = req.body; // Expecting 'active' or 'suspended' or 'banned'
+
+    // First check current status if not provided, or just toggle?
+    // Let's assume frontend sends the *new* status or we toggle.
+    // Let's implement toggle if status not provided, otherwise set.
     
-    const user = await User.findById(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
+    let newStatus = status;
+    if (!newStatus) {
+         const { data: profile } = await supabase.from('profiles').select('status').eq('id', id).single();
+         newStatus = profile?.status === 'suspended' ? 'active' : 'suspended';
     }
 
-    if (role) user.role = role;
-    if (typeof isVerified !== 'undefined') user.isVerified = isVerified;
+    // We don't have a 'status' column in profiles yet usually? 
+    // Let's check ensure_profile_columns.sql... it added 'status'.
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({ status: newStatus })
+      .eq('id', id)
+      .select()
+      .single();
 
-    await user.save();
+    if (error) throw error;
 
     res.json({
       success: true,
-      message: 'User updated successfully',
-      data: user
+      data
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update user'
-    });
+    console.error('Error suspending client:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
-// @route   DELETE /api/admin/users/:id
-// @desc    Delete user
+// @route   GET /api/admin/orders
+// @desc    Get all orders
 // @access  Private/Admin
-router.delete('/users/:id', async (req, res) => {
+router.get('/orders', protect, admin, async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select(`
+        *,
+        items:order_items(*),
+        profiles:user_id (name, email)
+      `)
+      .order('created_at', { ascending: false });
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found'
-      });
-    }
-
-    await user.deleteOne();
+    if (error) throw error;
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      count: orders.length,
+      data: orders
     });
+
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to delete user'
-    });
+    console.error('Error fetching orders:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
-// @route   PUT /api/admin/contacts/:id
-// @desc    Update contact status
+// @route   PUT /api/admin/orders/:id/status
+// @desc    Update order status
 // @access  Private/Admin
-router.put('/contacts/:id', async (req, res) => {
+
+
+router.put('/orders/:id/status', protect, admin, async (req, res) => {
   try {
-    const { status, assignedTo, notes } = req.body;
+    const { status } = req.body;
+    const { id } = req.params;
 
-    const contact = await Contact.findById(req.params.id);
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ status })
+      .eq('id', id)
+      .select();
 
-    if (!contact) {
-      return res.status(404).json({
-        success: false,
-        message: 'Contact not found'
-      });
-    }
-
-    if (status) contact.status = status;
-    if (assignedTo) contact.assignedTo = assignedTo;
-    if (notes) contact.notes = notes;
-
-    await contact.save();
+    if (error) throw error;
 
     res.json({
       success: true,
-      message: 'Contact updated successfully',
-      data: contact
+      data: data[0]
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update contact'
-    });
+    console.error('Error updating order:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
   }
 });
 
-// @route   GET /api/admin/newsletters
-// @desc    Get all newsletter subscribers
+// @route   GET /api/admin/services/activations
+// @desc    Get service activation requests
 // @access  Private/Admin
-router.get('/newsletters', async (req, res) => {
+router.get('/services/activations', protect, admin, async (req, res) => {
   try {
-    const subscribers = await Newsletter.find().sort({ subscribedAt: -1 });
+    // This assumes a 'user_services' table exists
+    const { data, error } = await supabase
+      .from('user_services')
+      .select(`
+        *,
+        profiles:user_id (name, email)
+      `)
+      .order('created_at', { ascending: false });
+
+    // if table doesn't exist yet, return empty or mock
+    if (error) {
+        console.warn('user_services table might not exist yet', error.message);
+        return res.json({ success: true, data: [] });
+    }
 
     res.json({
       success: true,
-      count: subscribers.length,
-      data: subscribers
+      data
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch subscribers'
-    });
+     res.status(500).json({ success: false, message: 'Server Error' });
   }
+});
+
+// @route   POST /api/admin/services/activate
+// @desc    Activate a service manually
+// @access  Private/Admin
+router.post('/services/activate', protect, admin, async (req, res) => {
+  try {
+    const { userId, serviceId, tier, billingCycle } = req.body;
+    
+    const { data, error } = await supabase
+        .from('user_services')
+        .insert({
+            user_id: userId,
+            service_id: serviceId,
+            tier,
+            billing_cycle: billingCycle,
+            status: 'active',
+            start_date: new Date(),
+            renewal_date: new Date(Date.now() + 30*24*60*60*1000) // +30 days mock
+        })
+        .select();
+
+    if (error) throw error;
+
+    res.json({ success: true, data: data[0] });
+  } catch (error) {
+    console.error('Error activating service:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+});
+
+// @route   GET /api/admin/settings
+// @desc    Get system settings
+// @access  Private/Admin
+router.get('/settings', protect, admin, async (req, res) => {
+   // Placeholder
+   res.json({
+     success: true,
+     data: {
+       maintenance_mode: false,
+       allow_registrations: true,
+       email_notifications: true
+     }
+   });
 });
 
 export default router;

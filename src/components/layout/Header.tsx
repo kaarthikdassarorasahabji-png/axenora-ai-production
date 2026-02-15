@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 const solutions = [
   { name: "AI Website Development", href: "/solutions/website" },
@@ -16,9 +17,8 @@ const navigation = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/features" },
   { name: "Solutions", href: "/solutions", hasDropdown: true },
-  { name: "Growth Hub", href: "/growth-hub" },
-  { name: "How It Works", href: "/how-it-works" },
   { name: "Pricing", href: "/pricing" },
+  { name: "How It Works", href: "/how-it-works" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
@@ -27,10 +27,17 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
@@ -38,12 +45,7 @@ export function Header() {
       <nav className="container-custom flex items-center justify-between py-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <span className="text-xl font-bold text-white">A</span>
-          </div>
-          <span className="text-xl font-bold font-['Space_Grotesk']">
-            Axenora <span className="gradient-text">AI</span>
-          </span>
+          <img src="/Logo.png" alt="Axenora AI" className="h-12 w-auto" />
         </Link>
 
         {/* Desktop Navigation */}
@@ -109,11 +111,50 @@ export function Header() {
           ))}
         </div>
 
-        {/* CTA Button */}
-        <div className="hidden lg:block">
-          <Link to="/contact">
-            <Button className="btn-primary">Book Demo</Button>
-          </Link>
+        {/* Auth Section */}
+        <div className="hidden lg:flex items-center gap-3">
+          {user ? (
+            // Logged in: Show Dashboard link and user menu
+            <div className="flex items-center gap-3">
+              <Link to="/dashboard">
+                <Button variant="outline">Dashboard</Button>
+              </Link>
+              <div className="relative group">
+                <button className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-secondary/50 transition-colors">
+                  <User className="w-4 h-4" />
+                  <span className="text-sm font-medium">{profile?.name || 'User'}</span>
+                  <ChevronDown className="w-4 h-4" />
+                </button>
+                
+                {/* User Dropdown */}
+                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl glass p-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                  <Link
+                    to="/dashboard/settings"
+                    className="block px-4 py-2 rounded-lg text-sm hover:bg-secondary/50 transition-colors"
+                  >
+                    Settings
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 rounded-lg text-sm text-destructive hover:bg-secondary/50 transition-colors flex items-center gap-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Logged out: Show Login and Register buttons
+            <>
+              <Link to="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+              <Link to="/register">
+                <Button className="btn-primary">Get Started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -139,7 +180,7 @@ export function Header() {
             className="lg:hidden glass border-t border-border"
           >
             <div className="container-custom py-4 space-y-2 max-h-[70vh] overflow-y-auto">
-              {navigation.map((item) => (
+               {navigation.map((item) => (
                 <div key={item.name}>
                   {item.hasDropdown ? (
                     <div>
@@ -174,13 +215,45 @@ export function Header() {
                   )}
                 </div>
               ))}
-              <Link
-                to="/contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block mt-4"
-              >
-                <Button className="btn-primary w-full">Book Demo</Button>
-              </Link>
+              
+              {/* Mobile Auth Buttons */}
+              <div className="mt-4 space-y-2">
+                {user ? (
+                  <>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block"
+                    >
+                      <Button className="w-full" variant="outline">Dashboard</Button>
+                    </Link>
+                    <Button
+                      onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}
+                      className="w-full"
+                      variant="destructive"
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block"
+                    >
+                      <Button className="w-full" variant="outline">Login</Button>
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="block"
+                    >
+                      <Button className="btn-primary w-full">Get Started</Button>
+                    </Link>
+                  </>
+                )}
+            </div>
             </div>
           </motion.div>
         )}

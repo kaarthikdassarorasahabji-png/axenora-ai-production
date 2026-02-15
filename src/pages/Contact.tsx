@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { API_BASE_URL as API_CONFIG } from '@/lib/api';
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +22,16 @@ import {
   Instagram,
   Bot,
   Mic,
+  Clock,
+  Shield,
+  Zap,
+  Users,
+  Globe,
+  CheckCircle,
+  Star,
+  ArrowRight,
+  Calendar,
+  Megaphone,
 } from "lucide-react";
 
 const formSchema = z.object({
@@ -33,6 +44,7 @@ const formSchema = z.object({
     .string()
     .regex(/^\+?[0-9\s-]+$/, "Enter a valid phone number")
     .optional(),
+  budget: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,10 +52,10 @@ type FormValues = z.infer<typeof formSchema>;
 const contactDetails = [
   {
     title: "Email",
-    value: "kaarthikdassarorasahabji@gmail.com",
+    value: "contact@axenoraai.in",
     description: "I'll respond within 24 hours",
     icon: Mail,
-    href: "mailto:kaarthikdassarorasahabji@gmail.com",
+    href: "mailto:contact@axenoraai.in",
   },
   {
     title: "Phone / WhatsApp",
@@ -77,7 +89,7 @@ const ContactPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
-    { role: "ai", text: "Hey! I’m the Axenora AI assistant. How can I help today?" },
+    { role: "ai", text: "👋 Hey! I'm the Axenora AI assistant. I can help you with:\n\n✨ AI Solutions (Chatbots, WhatsApp, Calling, Ads, Websites)\n💰 Pricing & Plans\n📞 Booking a Demo\n\nWhat would you like to know?" },
   ]);
 
   const {
@@ -108,13 +120,34 @@ const ContactPage = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true);
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      toast.success("Message sent successfully!");
+
+      const API_BASE_URL = `${API_CONFIG}/api`;
+
+      const response = await fetch(`${API_BASE_URL}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          phone: values.phone || '',
+          message: values.message,
+          service: values.subject,
+          company: '',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to send message');
+      }
+
+      toast.success(data.message || "Message sent successfully!");
       setSubmitted(true);
       reset({ contactMethod: "email" });
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      toast.error("Something went wrong. Please try again.");
+      toast.error(error?.message || "Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +162,7 @@ const ContactPage = () => {
         ...prev,
         {
           role: "ai",
-          text: "Great! I’ve shared this with Kaarthik and will follow up shortly.",
+          text: "Great! I've shared this with Kaarthik and will follow up shortly. You can also book a demo directly from the pricing page!",
         },
       ]);
     }, 500);
@@ -317,6 +350,23 @@ const ContactPage = () => {
                           {errors.subject.message}
                         </p>
                       )}
+                    </div>
+
+                    <div className="space-y-1">
+                      <label htmlFor="budget" className="text-sm font-medium">
+                        Estimated Budget (Optional)
+                      </label>
+                      <select
+                        id="budget"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        {...register("budget")}
+                      >
+                        <option value="">Select a range</option>
+                        <option value="<10k">Less than ₹10,000</option>
+                        <option value="10k-50k">₹10,000 - ₹50,000</option>
+                        <option value="50k-1L">₹50,000 - ₹1 Lakh</option>
+                        <option value="1L+">Above ₹1 Lakh</option>
+                      </select>
                     </div>
 
                     <div className="space-y-2">

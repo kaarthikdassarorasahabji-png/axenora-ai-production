@@ -3,16 +3,19 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
 
-// Import routes
-import authRoutes from './routes/auth.js';
+// Import Supabase config (validates connection on startup)
+import './config/supabase.js';
+
+// Import routes (auth handled by Supabase)
 import contactRoutes from './routes/contact.js';
 import newsletterRoutes from './routes/newsletter.js';
 import bookingRoutes from './routes/booking.js';
 import paymentRoutes from './routes/payment.js';
 import analyticsRoutes from './routes/analytics.js';
 import adminRoutes from './routes/admin.js';
+import servicesRoutes from './routes/services.js';
+import ordersRoutes from './routes/orders.js';
 
 dotenv.config();
 
@@ -21,8 +24,27 @@ const PORT = process.env.PORT || 5000;
 
 // Security middleware
 app.use(helmet());
+
+const allowedOrigins = [
+  process.env.CLIENT_URL || 'https://axenoraai.in',
+  'http://localhost:8080',
+  'http://localhost:3000',
+  'http://localhost:5173',
+  ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
+];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:8080',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check allowed origins
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -37,29 +59,23 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/axenora-ai', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected successfully'))
-.catch(err => console.error('❌ MongoDB connection error:', err));
-
-// Routes
-app.use('/api/auth', authRoutes);
+// Routes (no auth routes - Supabase handles authentication)
 app.use('/api/contact', contactRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/admin', adminRoutes); 
+app.use('/api/orders', ordersRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/admin', adminRoutes);
+app.use('/api/services', servicesRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    database: 'Supabase (PostgreSQL)'
   });
 });
 
@@ -84,6 +100,7 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🗄️  Database: Supabase (PostgreSQL)`);
 });
 
 export default app;

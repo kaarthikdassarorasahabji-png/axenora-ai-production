@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
-import Booking from '../models/Booking.js';
+import { supabase } from '../config/supabase.js';
 import { protect, admin } from '../middleware/auth.js';
 import { sendBookingConfirmation } from '../services/email.js';
 
@@ -31,11 +31,13 @@ router.post('/',
       const { name, email, phone, service, date, timeSlot, notes } = req.body;
 
       // Check if slot is available
-      const existingBooking = await Booking.findOne({
-        date: new Date(date),
-        timeSlot,
-        status: { $in: ['pending', 'confirmed'] }
-      });
+      const { data: existingBooking } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('date', date)
+        .eq('time_slot', timeSlot)
+        .in('status', ['pending', 'confirmed'])
+        .single();
 
       if (existingBooking) {
         return res.status(400).json({
@@ -45,15 +47,21 @@ router.post('/',
       }
 
       // Create booking
-      const booking = await Booking.create({
-        name,
-        email,
-        phone,
-        service,
-        date: new Date(date),
-        timeSlot,
-        notes
-      });
+      const { data: booking, error } = await supabase
+        .from('bookings')
+        .insert({
+          name,
+          email,
+          phone,
+          service,
+          date,
+          time_slot: timeSlot,
+          notes
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
 
       // Send confirmation email
       await sendBookingConfirmation({
@@ -62,7 +70,7 @@ router.post('/',
         service,
         date,
         timeSlot,
-        bookingId: booking._id
+        bookingId: booking.id
       });
 
       res.status(201).json({
@@ -86,16 +94,19 @@ router.post('/',
 // @access  Private
 router.get('/', protect, async (req, res) => {
   try {
-    let query = {};
+    let query = supabase
+      .from('bookings')
+      .select('*, user:profiles!user_id(id, name, email)')
+      .order('date', { ascending: false });
 
     // If not admin, only show user's bookings
     if (req.user.role !== 'admin') {
-      query.user = req.user._id;
+      query = query.eq('user_id', req.user.id);
     }
 
-    const bookings = await Booking.find(query)
-      .sort({ date: -1 })
-      .populate('user', 'name email');
+    const { data: bookings, error } = await query;
+
+    if (error) throw error;
 
     res.json({
       success: true,
@@ -103,6 +114,7 @@ router.get('/', protect, async (req, res) => {
       data: bookings
     });
   } catch (error) {
+    console.error('Fetch bookings error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch bookings'
@@ -115,9 +127,13 @@ router.get('/', protect, async (req, res) => {
 // @access  Private
 router.get('/:id', protect, async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const { data: booking, error } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
 
-    if (!booking) {
+    if (error || !booking) {
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
@@ -125,7 +141,7 @@ router.get('/:id', protect, async (req, res) => {
     }
 
     // Check ownership
-    if (booking.user && booking.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (booking.user_id && booking.user_id !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized'
@@ -137,6 +153,7 @@ router.get('/:id', protect, async (req, res) => {
       data: booking
     });
   } catch (error) {
+    console.error('Fetch booking error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to fetch booking'
@@ -151,20 +168,24 @@ router.put('/:id', protect, admin, async (req, res) => {
   try {
     const { status, meetingLink, notes } = req.body;
 
-    const booking = await Booking.findById(req.params.id);
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (meetingLink) updateData.meeting_link = meetingLink;
+    if (notes) updateData.notes = notes;
 
-    if (!booking) {
+    const { data: booking, error } = await supabase
+      .from('bookings')
+      .update(updateData)
+      .eq('id', req.params.id)
+      .select()
+      .single();
+
+    if (error || !booking) {
       return res.status(404).json({
         success: false,
         message: 'Booking not found'
       });
     }
-
-    if (status) booking.status = status;
-    if (meetingLink) booking.meetingLink = meetingLink;
-    if (notes) booking.notes = notes;
-
-    await booking.save();
 
     res.json({
       success: true,
@@ -172,6 +193,7 @@ router.put('/:id', protect, admin, async (req, res) => {
       data: booking
     });
   } catch (error) {
+    console.error('Update booking error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update booking'
@@ -184,7 +206,11 @@ router.put('/:id', protect, admin, async (req, res) => {
 // @access  Private
 router.delete('/:id', protect, async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const { data: booking } = await supabase
+      .from('bookings')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
 
     if (!booking) {
       return res.status(404).json({
@@ -194,21 +220,26 @@ router.delete('/:id', protect, async (req, res) => {
     }
 
     // Check ownership
-    if (booking.user && booking.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    if (booking.user_id && booking.user_id !== req.user.id && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'Not authorized'
       });
     }
 
-    booking.status = 'cancelled';
-    await booking.save();
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'cancelled' })
+      .eq('id', req.params.id);
+
+    if (error) throw error;
 
     res.json({
       success: true,
       message: 'Booking cancelled successfully'
     });
   } catch (error) {
+    console.error('Cancel booking error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to cancel booking'
