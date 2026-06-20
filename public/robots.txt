@@ -1,10 +1,16 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /register/
+Disallow: /payment/
 
-# Exclude private app areas from indexing
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login
-Disallow: /register
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
 
 Sitemap: https://axenoraai.in/sitemap.xml

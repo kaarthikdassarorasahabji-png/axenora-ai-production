@@ -8,11 +8,17 @@ const router = express.Router();
 
 
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+const getRazorpay = () => {
+  if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    const error = new Error('Payments are not configured');
+    error.status = 503;
+    throw error;
+  }
+  return new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  });
+};
 
 // @route   GET /api/orders
 // @desc    Get all orders for logged-in user
@@ -76,7 +82,7 @@ router.post('/create', protect, async (req, res) => {
     }
 
     // Create Razorpay Order
-    const razorpayOrder = await razorpay.orders.create({
+    const razorpayOrder = await getRazorpay().orders.create({
       amount: total * 100, // Convert to paise
       currency: 'INR',
       receipt: `order_${Date.now()}`

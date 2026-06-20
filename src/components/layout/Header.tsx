@@ -1,24 +1,23 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, User, LogOut } from "lucide-react";
+import { Menu, X, ChevronDown, User, LogOut, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 const solutions = [
-  { name: "AI Website Development", href: "/solutions/website" },
-  { name: "AI Ads & Marketing", href: "/solutions/ads" },
-  { name: "WhatsApp Automation", href: "/solutions/whatsapp" },
-  { name: "AI Chatbots", href: "/solutions/chatbots" },
-  { name: "AI Calling Agents", href: "/solutions/calling" },
+  { name: "EmpMetria", href: "/projects/empmetria", detail: "Workforce operations" },
+  { name: "Employee Monitoring", href: "/projects/monitoring", detail: "24/7 workforce operations" },
+  { name: "CRM Dashboards", href: "/projects/crm", detail: "Operations and hierarchy" },
+  { name: "Office Automation", href: "/projects/office-automation", detail: "Rules, routing and digests" },
+  { name: "Custom Chatbots", href: "/projects/chatbots", detail: "LLM support and lead capture" },
 ];
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Features", href: "/features" },
+  { name: "Work", href: "/features" },
   { name: "Solutions", href: "/solutions", hasDropdown: true },
-  { name: "Pricing", href: "/pricing" },
-  { name: "How It Works", href: "/how-it-works" },
+  { name: "Process", href: "/how-it-works" },
   { name: "About", href: "/about" },
   { name: "Contact", href: "/contact" },
 ];
@@ -41,11 +40,14 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass">
-      <nav className="container-custom flex items-center justify-between py-4">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-white/10 bg-[#0c1413]/95 text-white backdrop-blur-xl">
+      <nav className="container-custom flex items-center justify-between py-3">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/Logo.png" alt="Axenora AI" className="h-12 w-auto" />
+        <Link to="/" className="flex items-center gap-2" aria-label="Axenora AI home">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/[0.04]">
+            <img src="/favicon-32x32.png" alt="" className="h-6 w-6 object-contain" />
+          </span>
+          <span className="text-sm font-semibold uppercase tracking-[0.18em]">Axenora AI</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -60,7 +62,7 @@ export function Header() {
                 >
                   <button
                     className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
-                      isActive(item.href) ? "text-primary" : "text-muted-foreground"
+                      isActive(item.href) ? "text-[#bdf6d2]" : "text-white/68"
                     }`}
                   >
                     {item.name}
@@ -74,15 +76,16 @@ export function Header() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 mt-2 w-64 rounded-xl glass p-2"
+                        className="absolute left-0 top-full mt-3 w-72 rounded-md border border-white/12 bg-[#101918] p-2 shadow-2xl"
                       >
                         {solutions.map((solution) => (
                           <Link
                             key={solution.name}
                             to={solution.href}
-                            className="block px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+                            className="block rounded-md px-4 py-3 text-sm text-white/72 transition-colors hover:bg-white/10 hover:text-white"
                           >
-                            {solution.name}
+                            <span className="block font-semibold">{solution.name}</span>
+                            <span className="mt-1 block text-xs text-white/44">{solution.detail}</span>
                           </Link>
                         ))}
                         <div className="border-t border-border mt-2 pt-2">
@@ -90,7 +93,7 @@ export function Header() {
                             to="/solutions"
                             className="block px-4 py-3 rounded-lg text-sm font-medium text-primary hover:bg-secondary/50 transition-colors"
                           >
-                            View All Solutions →
+                            View all systems <ExternalLink className="ml-2 inline h-3.5 w-3.5" />
                           </Link>
                         </div>
                       </motion.div>
@@ -101,7 +104,7 @@ export function Header() {
                 <Link
                   to={item.href}
                   className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive(item.href) ? "text-primary" : "text-muted-foreground"
+                    isActive(item.href) ? "text-[#bdf6d2]" : "text-white/68"
                   }`}
                 >
                   {item.name}
@@ -147,12 +150,8 @@ export function Header() {
           ) : (
             // Logged out: Show Login and Register buttons
             <>
-              <Link to="/login">
-                <Button variant="outline">Login</Button>
-              </Link>
-              <Link to="/register">
-                <Button className="btn-primary">Get Started</Button>
-              </Link>
+              <a href="https://empmetria.axenoraai.in" target="_blank" rel="noreferrer" className="text-sm font-medium text-white/68 hover:text-white">EmpMetria</a>
+              <Link to="/contact"><Button className="rounded-md bg-[#bdf6d2] text-[#0c1413] hover:bg-[#9be7bb]">Start a project</Button></Link>
             </>
           )}
         </div>
@@ -177,7 +176,7 @@ export function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden glass border-t border-border"
+            className="border-t border-white/10 bg-[#0c1413] lg:hidden"
           >
             <div className="container-custom py-4 space-y-2 max-h-[70vh] overflow-y-auto">
                {navigation.map((item) => (

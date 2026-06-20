@@ -1,227 +1,185 @@
-import { Bot, X, Send, Minimize2 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "./ui/button";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, Bot, Check, LoaderCircle, Minimize2, Send, ShieldCheck, X } from "lucide-react";
+import { API_BASE_URL } from "@/lib/api";
 
-interface Message {
+type Role = "user" | "assistant";
+
+interface ChatMessage {
   id: string;
-  text: string;
-  sender: "user" | "bot";
-  timestamp: Date;
+  role: Role;
+  content: string;
+  createdAt: number;
 }
 
-const KNOWLEDGE_BASE = {
-  services: {
-    chatbots: "We create intelligent AI chatbots that handle customer queries 24/7, reducing response time by 90% and increasing customer satisfaction.",
-    whatsapp: "WhatsApp automation enables automated responses, lead capture, appointment booking, and customer support directly through WhatsApp Business API.",
-    calling: "AI calling agents can make and receive calls, schedule appointments, qualify leads, and provide customer support with natural conversation.",
-    website: "We build AI-powered websites with smart forms, personalized content, automated lead capture, and seamless user experiences.",
-    ads: "AI-driven ad campaigns with smart targeting, budget optimization, and automated A/B testing to maximize your ROI.",
-  },
-  pricing: {
-    starter: "₹14,999/month - 1 AI Chatbot, WhatsApp Integration, 500 Conversations/month, Email Support",
-    growth: "₹29,999/month - 3 AI Chatbots, WhatsApp + Website, 2000 Conversations, AI Calling (100 mins), Priority Support",
-    scale: "₹59,999/month - Unlimited Chatbots, All Integrations, 10000 Conversations, AI Calling (500 mins), Account Manager",
-    enterprise: "Custom pricing - Everything in Scale + Custom AI Development + Unlimited Usage + SLA Guarantee",
-  },
-  company: {
-    founder: "Kaarthik Dass Arora",
-    mission: "Axenora AI transforms businesses with cutting-edge AI automation, helping companies scale revenue, save time, and boost conversions.",
-    contact: "+91 7814051678",
-    email: "contact@axenoraai.in",
-  },
+interface ChatResponse {
+  success: boolean;
+  reply?: string;
+  leadIntent?: boolean;
+  topic?: string;
+  message?: string;
+}
+
+const STORAGE_KEY = "axenora-chat-v2";
+const SESSION_KEY = "axenora-chat-session";
+const greeting: ChatMessage = {
+  id: "welcome",
+  role: "assistant",
+  content: "Hello. Tell me what you want to improve, and I’ll recommend the right Axenora system and explain how it would work for your business.",
+  createdAt: Date.now(),
 };
 
-const generateBotResponse = (userMessage: string): string => {
-  const msg = userMessage.toLowerCase();
+const quickPrompts = ["Monitor a remote team", "Build a CRM", "Automate office work", "Create a sales chatbot"];
 
-  if (msg.includes("hello") || msg.includes("hi") || msg.includes("hey")) {
-    return `👋 Hello! I'm Axenora AI Assistant. I can help you with:\n\n✨ AI Solutions (Chatbots, WhatsApp, Calling, Ads, Websites)\n💰 Pricing & Plans\n📞 Booking a Demo\n\nWhat would you like to know?`;
+function getSessionId() {
+  const existing = localStorage.getItem(SESSION_KEY);
+  if (existing) return existing;
+  const next = crypto.randomUUID();
+  localStorage.setItem(SESSION_KEY, next);
+  return next;
+}
+
+function readMessages(): ChatMessage[] {
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") as ChatMessage[];
+    return Array.isArray(value) && value.length ? value.slice(-20) : [greeting];
+  } catch {
+    return [greeting];
   }
-
-  if (msg.includes("chatbot") || msg.includes("bot")) {
-    return `🤖 ${KNOWLEDGE_BASE.services.chatbots}\n\nWant to see how it works? Book a demo: +91 7814051678`;
-  }
-
-  if (msg.includes("whatsapp") || msg.includes("wa")) {
-    return `💬 ${KNOWLEDGE_BASE.services.whatsapp}\n\nInterested? Let's chat: wa.me/917814051678`;
-  }
-
-  if (msg.includes("call") || msg.includes("phone") || msg.includes("voice")) {
-    return `📞 ${KNOWLEDGE_BASE.services.calling}\n\nSchedule a live demo call with our team!`;
-  }
-
-  if (msg.includes("website") || msg.includes("web")) {
-    return `🌐 ${KNOWLEDGE_BASE.services.website}\n\nSee examples and get a quote!`;
-  }
-
-  if (msg.includes("ad") || msg.includes("marketing") || msg.includes("campaign")) {
-    return `📢 ${KNOWLEDGE_BASE.services.ads}\n\nLet's discuss your marketing goals!`;
-  }
-
-  if (msg.includes("price") || msg.includes("pricing") || msg.includes("cost") || msg.includes("plan")) {
-    return `💰 **Our Pricing Plans:**\n\n📦 Starter: ${KNOWLEDGE_BASE.pricing.starter}\n\n🚀 Growth: ${KNOWLEDGE_BASE.pricing.growth}\n\n⚡ Scale: ${KNOWLEDGE_BASE.pricing.scale}\n\n🏢 Enterprise: ${KNOWLEDGE_BASE.pricing.enterprise}\n\nWhich plan interests you?`;
-  }
-
-  if (msg.includes("demo") || msg.includes("trial") || msg.includes("book")) {
-    return `📅 Book a FREE demo now!\n\n📞 Call: ${KNOWLEDGE_BASE.company.contact}\n💬 WhatsApp: wa.me/917814051678\n✉️ Email: ${KNOWLEDGE_BASE.company.email}\n\nOur team will respond within minutes!`;
-  }
-
-  if (msg.includes("founder") || msg.includes("owner") || msg.includes("ceo")) {
-    return `👔 Axenora AI was founded by **${KNOWLEDGE_BASE.company.founder}**, a visionary entrepreneur passionate about AI-driven business transformation.`;
-  }
-
-  if (msg.includes("contact") || msg.includes("reach") || msg.includes("email")) {
-    return `📞 Contact Us:\n\n📱 Phone/WhatsApp: ${KNOWLEDGE_BASE.company.contact}\n✉️ Email: ${KNOWLEDGE_BASE.company.email}\n\nWe're available 24/7 to help you!`;
-  }
-
-  if (msg.includes("thank") || msg.includes("thanks")) {
-    return `😊 You're welcome! Is there anything else I can help you with?`;
-  }
-
-  return `🤔 I'm here to help! You can ask me about:\n\n• AI Chatbots & WhatsApp Automation\n• AI Calling Agents\n• Website Development\n• Pricing & Plans\n• Booking a Demo\n\nOr contact us directly at ${KNOWLEDGE_BASE.company.contact}`;
-};
+}
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      text: "👋 Hi! I'm Axenora AI Assistant. I can help you learn about our AI solutions, pricing, and book a demo. What would you like to know?",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
-  const [inputValue, setInputValue] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const [messages, setMessages] = useState<ChatMessage[]>(readMessages);
+  const [input, setInput] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
+  const [leadIntent, setLeadIntent] = useState(false);
+  const [topic, setTopic] = useState("General enquiry");
+  const [leadStatus, setLeadStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [leadError, setLeadError] = useState("");
+  const endRef = useRef<HTMLDivElement>(null);
+  const sessionId = useMemo(getSessionId, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-20)));
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, leadIntent, leadStatus]);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  async function sendMessage(text: string) {
+    const clean = text.trim();
+    if (!clean || isThinking) return;
+    const userMessage: ChatMessage = { id: crypto.randomUUID(), role: "user", content: clean, createdAt: Date.now() };
+    const nextMessages = [...messages, userMessage].slice(-10);
+    setMessages((current) => [...current, userMessage]);
+    setInput("");
+    setIsThinking(true);
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
-      sender: "user",
-      timestamp: new Date(),
-    };
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: nextMessages.map(({ role, content }) => ({ role, content })) }),
+      });
+      const data = (await response.json()) as ChatResponse;
+      if (!response.ok || !data.reply) throw new Error(data.message || "Assistant unavailable");
+      setMessages((current) => [...current, { id: crypto.randomUUID(), role: "assistant", content: data.reply!, createdAt: Date.now() }]);
+      setTopic(data.topic || "General enquiry");
+      if (data.leadIntent) setLeadIntent(true);
+    } catch {
+      setMessages((current) => [...current, {
+        id: crypto.randomUUID(),
+        role: "assistant",
+        content: "I’m briefly unable to reach the product assistant. Please try again in a moment, or use the project pages below to explore Axenora’s systems.",
+        createdAt: Date.now(),
+      }]);
+    } finally {
+      setIsThinking(false);
+    }
+  }
 
-    setMessages((prev) => [...prev, userMessage]);
-    setInputValue("");
-
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: generateBotResponse(inputValue),
-        sender: "bot",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, botResponse]);
-    }, 800);
-  };
+  async function submitLead(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setLeadStatus("sending");
+    setLeadError("");
+    const form = new FormData(event.currentTarget);
+    const summary = messages.slice(-6).map((message) => `${message.role}: ${message.content}`).join("\n");
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/chat/lead`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.get("name"), phone: form.get("phone"), email: form.get("email"), website: form.get("website"),
+          consent: form.get("consent") === "on" ? "true" : "false",
+          interest: topic, summary, page: window.location.href, sessionId,
+        }),
+      });
+      const data = (await response.json()) as ChatResponse;
+      if (!response.ok) throw new Error(data.message || "Unable to save details");
+      setLeadStatus("sent");
+    } catch (error) {
+      setLeadStatus("idle");
+      setLeadError(error instanceof Error ? error.message : "Unable to save details");
+    }
+  }
 
   return (
     <>
-      {/* AI Chatbot Button */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 2.2, type: "spring" }}
-        className="fixed bottom-6 right-24 z-50"
+      <motion.button
+        initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1.2, type: "spring" }}
+        onClick={() => setIsOpen((open) => !open)}
+        className="fixed bottom-4 right-20 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[#0c1413] text-[#bdf6d2] shadow-xl transition-transform hover:scale-105 sm:bottom-6 sm:right-24"
+        aria-label={isOpen ? "Close AI assistant" : "Open AI assistant"}
       >
-        <button
-          onClick={() => {
-            setIsOpen(!isOpen);
-            setIsMinimized(false);
-          }}
-          className="flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-r from-primary to-accent text-white shadow-lg hover:scale-110 transition-transform duration-200"
-          aria-label="AI Assistant"
-        >
-          {isOpen ? <X className="w-6 h-6" /> : <Bot className="w-6 h-6" />}
-        </button>
-      </motion.div>
+        {isOpen ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
+      </motion.button>
 
-      {/* Chatbot Window */}
       <AnimatePresence>
-        {isOpen && !isMinimized && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-24 w-96 h-[32rem] bg-card border border-border rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col"
+        {isOpen && (
+          <motion.aside
+            initial={{ opacity: 0, y: 18, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.97 }}
+            className="fixed bottom-20 right-3 z-50 flex h-[min(76svh,42rem)] w-[calc(100vw-1.5rem)] max-w-[25rem] flex-col overflow-hidden rounded-md border border-white/10 bg-[#0c1413] text-white shadow-2xl sm:bottom-24 sm:right-24"
+            aria-label="Axenora AI assistant"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-primary to-accent p-4 text-white flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                  <Bot className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold">AI Assistant</h3>
-                  <p className="text-xs opacity-90">Always online</p>
-                </div>
+            <header className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#bdf6d2] text-[#0c1413]"><Bot className="h-5 w-5" /></span>
+                <div className="min-w-0"><h2 className="truncate text-sm font-semibold">Axenora product advisor</h2><p className="flex items-center gap-1.5 text-xs text-white/55"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />LLM assistant</p></div>
               </div>
-              <button
-                onClick={() => setIsMinimized(true)}
-                className="hover:bg-white/20 p-1 rounded"
-              >
-                <Minimize2 className="w-4 h-4" />
-              </button>
-            </div>
+              <button onClick={() => setIsOpen(false)} className="p-2 text-white/60 hover:text-white" aria-label="Minimize assistant"><Minimize2 className="h-4 w-4" /></button>
+            </header>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+            <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
               {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex ${message.sender === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  <div
-                    className={`max-w-[75%] rounded-2xl p-3 ${
-                      message.sender === "user"
-                        ? "bg-gradient-to-r from-primary to-accent text-white"
-                        : "bg-card border border-border"
-                    }`}
-                  >
-                    <p className="text-sm whitespace-pre-line">{message.text}</p>
-                    <span className="text-xs opacity-70 mt-1 block">
-                      {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </span>
+                <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[88%] rounded-md px-3 py-2.5 text-sm leading-6 ${message.role === "user" ? "bg-[#bdf6d2] text-[#0c1413]" : "border border-white/10 bg-white/[0.06] text-white/82"}`}>
+                    <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
+              {messages.length === 1 && <div className="grid grid-cols-2 gap-2">{quickPrompts.map((prompt) => <button key={prompt} onClick={() => sendMessage(prompt)} className="min-h-12 rounded-md border border-white/10 px-3 text-left text-xs leading-4 text-white/68 hover:border-[#bdf6d2]/50 hover:text-white">{prompt}</button>)}</div>}
+              {isThinking && <div className="flex items-center gap-2 text-xs text-white/55"><LoaderCircle className="h-4 w-4 animate-spin text-[#bdf6d2]" />Thinking with your context</div>}
+
+              {leadIntent && leadStatus !== "sent" && (
+                <form onSubmit={submitLead} className="space-y-3 rounded-md border border-[#bdf6d2]/25 bg-[#bdf6d2]/[0.07] p-4">
+                  <div><p className="text-sm font-semibold">Request a callback</p><p className="mt-1 text-xs leading-5 text-white/58">With your permission, we’ll store these details and email them to the Axenora team.</p></div>
+                  <div className="grid grid-cols-2 gap-2"><input name="name" required minLength={2} placeholder="Name" aria-label="Name" className="min-w-0 rounded-md border border-white/12 bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#bdf6d2]" /><input name="phone" required inputMode="tel" placeholder="Phone" aria-label="Phone number" className="min-w-0 rounded-md border border-white/12 bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#bdf6d2]" /></div>
+                  <input name="email" type="email" placeholder="Email (optional)" aria-label="Email address" className="w-full rounded-md border border-white/12 bg-black/20 px-3 py-2 text-sm outline-none focus:border-[#bdf6d2]" />
+                  <input name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+                  <label className="flex items-start gap-2 text-xs leading-5 text-white/65"><input name="consent" required type="checkbox" className="mt-1 accent-[#bdf6d2]" />I agree to be contacted about this enquiry.</label>
+                  {leadError && <p className="text-xs text-red-300">{leadError}</p>}
+                  <button disabled={leadStatus === "sending"} className="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[#bdf6d2] text-sm font-semibold text-[#0c1413] disabled:opacity-60">{leadStatus === "sending" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />} Send details</button>
+                </form>
+              )}
+              {leadStatus === "sent" && <div className="flex gap-3 rounded-md border border-emerald-300/20 bg-emerald-300/10 p-4"><Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" /><p className="text-sm text-white/75">Your details are saved. The Axenora team has been notified.</p></div>}
+              <a href="/solutions" className="flex items-center justify-between rounded-md border border-white/10 p-3 text-xs text-white/65 hover:text-white"><span>Browse all Axenora systems</span><ArrowUpRight className="h-4 w-4" /></a>
+              <div ref={endRef} />
             </div>
 
-            {/* Input */}
-            <div className="p-4 border-t border-border bg-card">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                  placeholder="Type your message..."
-                  className="flex-1 px-4 py-2 rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <Button
-                  onClick={handleSend}
-                  className="bg-gradient-to-r from-primary to-accent"
-                  size="icon"
-                >
-                  <Send className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </motion.div>
+            <form onSubmit={(event) => { event.preventDefault(); void sendMessage(input); }} className="border-t border-white/10 bg-black/15 p-3">
+              <div className="flex items-end gap-2"><textarea value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(input); } }} rows={1} maxLength={1200} placeholder="Ask about a system..." aria-label="Message" className="max-h-24 min-h-11 flex-1 resize-none rounded-md border border-white/12 bg-white/[0.06] px-3 py-2.5 text-sm outline-none placeholder:text-white/35 focus:border-[#bdf6d2]" /><button disabled={!input.trim() || isThinking} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-[#bdf6d2] text-[#0c1413] disabled:opacity-40" aria-label="Send message"><Send className="h-4 w-4" /></button></div>
+              <p className="mt-2 flex items-center gap-1.5 text-[10px] text-white/38"><ShieldCheck className="h-3 w-3" />Business guidance generated from approved Axenora context.</p>
+            </form>
+          </motion.aside>
         )}
       </AnimatePresence>
     </>

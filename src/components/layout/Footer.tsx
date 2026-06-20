@@ -1,13 +1,15 @@
-import { Link } from "react-router-dom";
+﻿import { Link } from "react-router-dom";
 import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from "lucide-react";
 
 const footerLinks = {
   solutions: [
-    { name: "AI Website Development", href: "/solutions/website" },
-    { name: "AI Ads & Marketing", href: "/solutions/ads" },
-    { name: "WhatsApp Automation", href: "/solutions/whatsapp" },
-    { name: "AI Chatbots", href: "/solutions/chatbots" },
-    { name: "AI Calling Agents", href: "/solutions/calling" },
+    { name: "EmpMetria", href: "/projects/empmetria" },
+    { name: "CRM Dashboards", href: "/projects/crm" },
+    { name: "Employee Monitoring", href: "/projects/monitoring" },
+    { name: "Office Automation", href: "/projects/office-automation" },
+    { name: "Custom Chatbots", href: "/projects/chatbots" },
+    { name: "WhatsApp Automation", href: "/projects/whatsapp" },
+    { name: "Instagram Automation", href: "/projects/instagram" },
   ],
   company: [
     { name: "About", href: "/about" },
@@ -19,17 +21,19 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-card/30">
+    <footer className="border-t border-white/10 bg-[#0c1413] text-white">
       <div className="container-custom section-padding">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <img src="/Logo.png" alt="Axenora AI" className="h-10 w-auto" />
+            <Link to="/" className="mb-6 flex items-center gap-2" aria-label="Axenora AI home">
+              <span className="flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/[0.04]">
+                <img src="/favicon-32x32.png" alt="" className="h-6 w-6 object-contain" />
+              </span>
+              <span className="text-sm font-semibold uppercase tracking-[0.18em]">Axenora AI</span>
             </Link>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-              AI systems that build, run & scale businesses. We install intelligent 
-              systems that automate customer engagement, follow-ups, and business growth.
+            <p className="mb-6 text-sm leading-relaxed text-white/56">
+              We design and build serious operating software: workforce products, CRM systems, custom chatbots and commerce automation.
             </p>
             <div className="flex gap-4">
               <a href="https://linkedin.com/in/kaarthikdassarora" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-secondary/50 hover:bg-primary/20 transition-colors">
@@ -46,7 +50,7 @@ export function Footer() {
 
           {/* Solutions */}
           <div>
-            <h4 className="font-semibold mb-6 font-['Space_Grotesk']">Solutions</h4>
+            <h4 className="mb-6 font-['Space_Grotesk'] font-semibold">Products and systems</h4>
             <ul className="space-y-3">
               {footerLinks.solutions.map((link) => (
                 <li key={link.name}>
@@ -110,7 +114,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Axenora AI. All rights reserved.
+            Copyright {new Date().getFullYear()} Axenora AI. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">

@@ -1,114 +1,113 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { ArrowRight, CheckCircle2, Code2, Database, MonitorUp, ShieldCheck } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { CTASection } from "@/components/sections/CTASection";
-import aboutHero from "@/assets/about-hero.jpg";
-
-const missionStatement =
-  "Axenora AI installs autonomous revenue systems so ambitious companies can scale without adding headcount.";
+import { Button } from "@/components/ui/button";
+import monitorLiveWall from "@/assets/proof/monitor-live-wall-web.jpg";
+import officeAutomation from "@/assets/project-office-user.jpg";
 
 const principles = [
-  {
-    title: "Design for measurable impact",
-    description: "Every rollout ships with baselines, dashboards, and a playbook for iterating weekly.",
-  },
-  {
-    title: "Operate with trust and safety",
-    description: "Compliance, human-in-the-loop guardrails, and transparent escalation paths are built in from day one.",
-  },
-  {
-    title: "Move with founder-level urgency",
-    description: "We prototype in days, not quarters, and keep a shared mission doc open with every client.",
-  },
+  "Build around the real workflow before adding AI.",
+  "Connect frontend, backend, database, automations and dashboards.",
+  "Use real product evidence, not generic demos.",
+  "Keep humans in control with roles, approvals and audit trails.",
 ];
+
+const stack = [
+  ["Product UI", "CRM dashboards, portals, live walls and admin panels", MonitorUp],
+  ["Backend systems", "APIs, webhooks, auth, queues, integrations and databases", Database],
+  ["Automation logic", "Chatbots, task routing, order flows, reminders and digests", Code2],
+  ["Security controls", "Role hierarchy, module access, logs and production guardrails", ShieldCheck],
+] as const;
 
 const About = () => {
   return (
     <Layout>
-      <section className="relative min-h-[60vh] flex items-center">
-        <div className="absolute inset-0 z-0">
-          <img src={aboutHero} alt="About" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
-        </div>
-        <div className="container-custom relative z-10 py-20">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-3xl">
-            <span className="text-sm font-medium text-primary uppercase tracking-wider">About Axenora</span>
-            <h1 className="text-4xl md:text-6xl font-bold mt-4 mb-6 font-['Space_Grotesk']">
-              A Revenue Mission Control for <span className="gradient-text">AI-Driven Teams</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-3xl">
-              {missionStatement}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 font-['Space_Grotesk']">The Mission</h2>
-              <p className="text-muted-foreground mb-4">
-                {missionStatement} We combine GTM strategy, automation engineering, and compliance rigor into a single operating layer for founders and revenue teams.
+      <main className="bg-[#f4f0e8] text-[#10151f]">
+        <section className="relative min-h-[36rem] overflow-hidden bg-[#10151f] text-white">
+          <div className="absolute inset-0">
+            <img src={officeAutomation} alt="Axenora office automation platform" className="h-full w-full object-cover object-center" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,21,31,0.96),rgba(16,21,31,0.78)_48%,rgba(16,21,31,0.22))]" />
+          </div>
+          <div className="container-custom relative flex min-h-[36rem] items-center py-24">
+            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#a9ffcb]">About Axenora</p>
+              <h1 className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.06] md:text-6xl">
+                Software shaped around how a business actually runs.
+              </h1>
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/72">
+                Axenora is a founder-led product studio building workforce platforms, CRM dashboards, office automation and conversational systems connected to real company data.
               </p>
-              <div className="rounded-2xl border border-border/60 p-6 bg-card/60 space-y-3">
-                <p className="text-sm uppercase tracking-widest text-primary font-semibold">What it means</p>
-                <ul className="space-y-3 text-muted-foreground">
-                  <li>• Plug in AI copilots across website, WhatsApp, voice, and sales ops without extra headcount.</li>
-                  <li>• Maintain enterprise trust standards: SOC2 controls, audit logging, and region-aware data flows.</li>
-                  <li>• Keep humans in the loop with a client portal, shared rituals, and real-time experiment notes.</li>
-                </ul>
-              </div>
-            </motion.div>
-            <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="p-8 rounded-2xl bg-card border border-border">
-              <h3 className="text-2xl font-bold mb-4 font-['Space_Grotesk']">Kaarthik Arora</h3>
-              <p className="text-primary mb-4">Founder & CEO</p>
-              <p className="text-muted-foreground">
-                Kaarthik has led GTM and automation pods across APAC startups before building Axenora’s AI agency model.
-                He still runs weekly “mission control” calls with every client to keep roadmaps aligned.
-              </p>
-              <div className="mt-6 space-y-2 text-sm text-muted-foreground">
-                <p>• Based in Ludhiana, working remotely with teams across India, SEA, and MENA.</p>
-                <p>• Favorite ritual: Sunday loom recaps that document learnings for our operators.</p>
-              </div>
             </motion.div>
           </div>
-        </div>
-      </section>
-      <section className="section-padding bg-card/30">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <span className="text-sm font-medium uppercase tracking-wider text-primary">Operating Principles</span>
-            <h2 className="text-3xl md:text-4xl font-bold mt-4 mb-4 font-['Space_Grotesk']">
-              How We Partner With Founders
-            </h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto">
-              These principles keep every build sprint, automation launch, and governance review aligned with the mission.
-            </p>
-          </motion.div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {principles.map((principle, index) => (
-              <motion.div
-                key={principle.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="p-6 rounded-2xl border border-border bg-background/60"
-              >
-                <p className="text-xs uppercase tracking-widest text-primary font-semibold mb-2">Principle 0{index + 1}</p>
-                <h3 className="text-xl font-semibold mb-3">{principle.title}</h3>
-                <p className="text-muted-foreground text-sm">{principle.description}</p>
-              </motion.div>
+        </section>
+
+        <section className="border-b border-[#10151f]/12 bg-white">
+          <div className="container-custom grid sm:grid-cols-2 lg:grid-cols-4">
+            {[["Frontend + backend", "One accountable build"], ["Role-led", "Permissions before shortcuts"], ["Production", "Deployment and health checks"], ["Human control", "Approvals and audit history"]].map(([value, label]) => (
+              <div key={value} className="border-b border-[#10151f]/10 px-5 py-7 sm:border-r lg:border-b-0 last:border-r-0"><p className="font-semibold">{value}</p><p className="mt-1 text-sm text-[#10151f]/58">{label}</p></div>
             ))}
           </div>
-        </div>
-      </section>
-      <CTASection />
+        </section>
+
+        <section className="container-custom py-24">
+          <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#1d6f52]">Founder-led build process</p>
+              <h2 className="mt-4 text-4xl font-semibold leading-tight md:text-5xl">
+                Strategy, interface, backend and automation in one build loop.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-[#10151f]/68">
+                The work starts with the business process, then becomes a shipped interface with APIs, auth, dashboards, integrations and operational controls.
+              </p>
+              <Button asChild className="mt-8 rounded-md bg-[#10151f] text-white hover:bg-[#1d6f52]">
+                <Link to="/contact">
+                  Work with Axenora <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="overflow-hidden rounded-md border border-[#10151f]/12 bg-white shadow-[0_18px_70px_rgba(16,21,31,0.08)]">
+              <img src={monitorLiveWall} alt="Employee monitoring live wall" loading="lazy" className="aspect-[16/10] w-full object-cover" />
+              <div className="p-7">
+                <h3 className="text-2xl font-semibold">Built from live systems</h3>
+                <p className="mt-3 leading-7 text-[#10151f]/66">
+                  The website uses real screenshots from CRM and monitoring builds because the offer is implementation, not vague automation advice.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white py-20">
+          <div className="container-custom grid gap-10 lg:grid-cols-[0.75fr_1.25fr]">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#1d6f52]">Principles</p>
+              <h2 className="mt-4 text-4xl font-semibold">How we build</h2>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {principles.map((item) => (
+                <div key={item} className="flex gap-3 rounded-md border border-[#10151f]/12 bg-[#f4f0e8] p-5">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#1d6f52]" />
+                  <p className="text-sm font-medium leading-6 text-[#10151f]/78">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="container-custom py-24">
+          <div className="mb-10 max-w-2xl"><p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#1d6f52]">Delivery capability</p><h2 className="mt-4 text-4xl font-semibold">The people-facing product and the systems behind it.</h2></div>
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {stack.map(([title, description, Icon]) => (
+              <div key={title} className="rounded-md border border-[#10151f]/12 bg-white p-6">
+                <Icon className="h-6 w-6 text-[#1d6f52]" />
+                <h3 className="mt-5 text-xl font-semibold">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#10151f]/64">{description}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
     </Layout>
   );
 };

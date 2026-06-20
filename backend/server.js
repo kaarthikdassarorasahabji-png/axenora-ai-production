@@ -3,6 +3,8 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 // Import Supabase config (validates connection on startup)
 import './config/supabase.js';
@@ -16,11 +18,14 @@ import analyticsRoutes from './routes/analytics.js';
 import adminRoutes from './routes/admin.js';
 import servicesRoutes from './routes/services.js';
 import ordersRoutes from './routes/orders.js';
+import chatRoutes from './routes/chat.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const frontendDist = path.resolve(__dirname, '../dist');
 
 // Security middleware
 app.use(helmet());
@@ -31,7 +36,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
-];
+].map((origin) => origin.trim()).filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -50,14 +55,16 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
+  standardHeaders: true,
+  legacyHeaders: false
 });
 app.use('/api/', limiter);
 
 // Body parser
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Routes (no auth routes - Supabase handles authentication)
 app.use('/api/contact', contactRoutes);
@@ -68,6 +75,7 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/services', servicesRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -75,8 +83,16 @@ app.get('/api/health', (req, res) => {
     status: 'OK', 
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    database: 'Supabase (PostgreSQL)'
+    database: 'Supabase (PostgreSQL)',
+    version: process.env.APP_VERSION || '1.0.0'
   });
+});
+
+// The Docker Space serves the optimized frontend and API from one origin.
+app.use(express.static(frontendDist, { maxAge: '1d', etag: true }));
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api/')) return next();
+  return res.sendFile(path.join(frontendDist, 'index.html'));
 });
 
 // Error handling middleware

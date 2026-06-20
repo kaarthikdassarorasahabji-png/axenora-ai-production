@@ -46,6 +46,7 @@ coverage
 .temp
 .tmp
 .vercel
+.omx/
 .netlify
 .sass-cache
 
