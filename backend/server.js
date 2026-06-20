@@ -27,6 +27,10 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendDist = path.resolve(__dirname, '../dist');
 
+// Hugging Face terminates TLS at one reverse-proxy hop. Trusting that hop lets
+// express-rate-limit use the real client IP without accepting arbitrary chains.
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
