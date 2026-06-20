@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Bot, Check, LoaderCircle, Minimize2, Send, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Bot, Check, LoaderCircle, Minimize2, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 
 type Role = "user" | "assistant";
@@ -122,6 +122,16 @@ export function AIChatbot() {
     }
   }
 
+  function clearChat() {
+    localStorage.removeItem(STORAGE_KEY);
+    setMessages([{ ...greeting, createdAt: Date.now() }]);
+    setInput("");
+    setLeadIntent(false);
+    setTopic("General enquiry");
+    setLeadStatus("idle");
+    setLeadError("");
+  }
+
   return (
     <>
       <AnimatePresence>
@@ -149,10 +159,22 @@ export function AIChatbot() {
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#bdf6d2] text-[#0c1413]"><Bot className="h-5 w-5" /></span>
                 <div className="min-w-0"><h2 className="truncate text-sm font-semibold">Axenora product advisor</h2><p className="flex items-center gap-1.5 text-xs text-white/55"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />LLM assistant</p></div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="p-2 text-white/60 hover:text-white" aria-label="Minimize assistant"><Minimize2 className="h-4 w-4" /></button>
+              <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={clearChat}
+                  disabled={messages.length <= 1 || isThinking || leadStatus === "sending"}
+                  className="rounded-md p-2 text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white disabled:cursor-not-allowed disabled:opacity-30"
+                  aria-label="Clear chat"
+                  title="Clear chat"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+                <button type="button" onClick={() => setIsOpen(false)} className="rounded-md p-2 text-white/60 transition-colors hover:bg-white/[0.06] hover:text-white" aria-label="Minimize assistant" title="Minimize assistant"><Minimize2 className="h-4 w-4" /></button>
+              </div>
             </header>
 
-            <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
+            <div className="min-h-0 flex-1 touch-pan-y space-y-4 overflow-y-auto overscroll-contain px-4 py-4 [scrollbar-gutter:stable]" aria-live="polite">
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[88%] rounded-md px-3 py-2.5 text-sm leading-6 ${message.role === "user" ? "bg-[#bdf6d2] text-[#0c1413]" : "border border-white/10 bg-white/[0.06] text-white/82"}`}>
