@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, Bot, Check, LoaderCircle, Minimize2, Send, ShieldCheck, X } from "lucide-react";
+import { ArrowUpRight, Bot, Check, LoaderCircle, Minimize2, Send, ShieldCheck } from "lucide-react";
 import { API_BASE_URL } from "@/lib/api";
 
 type Role = "user" | "assistant";
@@ -124,14 +124,18 @@ export function AIChatbot() {
 
   return (
     <>
-      <motion.button
-        initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 1.2, type: "spring" }}
-        onClick={() => setIsOpen((open) => !open)}
-        className="fixed bottom-4 right-20 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[#0c1413] text-[#bdf6d2] shadow-xl transition-transform hover:scale-105 sm:bottom-6 sm:right-24"
-        aria-label={isOpen ? "Close AI assistant" : "Open AI assistant"}
-      >
-        {isOpen ? <X className="h-5 w-5" /> : <Bot className="h-5 w-5" />}
-      </motion.button>
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ type: "spring" }}
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-4 right-20 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-white/15 bg-[#0c1413] text-[#bdf6d2] shadow-xl transition-transform hover:scale-105 sm:bottom-6 sm:right-24"
+            aria-label="Open AI assistant"
+          >
+            <Bot className="h-5 w-5" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {isOpen && (
