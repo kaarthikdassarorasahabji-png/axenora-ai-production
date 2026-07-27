@@ -12,6 +12,7 @@ import {
   MessageCircle,
   MonitorUp,
   MousePointer2,
+  Music2,
   ShieldCheck,
   ShoppingCart,
   Users,
@@ -311,6 +312,41 @@ export function HeroSection() {
               <p className="mt-1 text-sm text-[#10151f]/62">{label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="border-b border-[#10151f]/10 bg-[#ede8df] py-16 md:py-20">
+        <div className="container-custom">
+          <a
+            href="https://meloqis.axenoraai.in"
+            target="_blank"
+            rel="noreferrer"
+            className="group grid overflow-hidden rounded-md border border-[#10151f]/14 bg-[#0a090e] text-white shadow-[0_24px_70px_rgba(16,21,31,0.12)] lg:grid-cols-[0.9fr_1.1fr]"
+          >
+            <div className="relative flex min-h-80 items-center justify-center overflow-hidden border-b border-white/10 p-10 lg:border-b-0 lg:border-r">
+              <div className="absolute h-72 w-72 rounded-full border border-[#9d71ff]/25 shadow-[0_0_0_70px_rgba(157,113,255,0.05),0_0_110px_rgba(157,113,255,0.18)] transition-transform duration-700 group-hover:scale-110" />
+              <div className="relative flex h-20 w-52 items-center gap-4 rounded-full border border-white/10 bg-black px-5 shadow-2xl">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#9d71ff]/20">
+                  <Music2 className="h-5 w-5 text-[#b99aff]" />
+                </span>
+                <span>
+                  <strong className="block text-sm">After Midnight</strong>
+                  <small className="text-white/45">Meloqis Sessions</small>
+                </span>
+                <span className="ml-auto text-xs">▶</span>
+              </div>
+            </div>
+            <div className="flex flex-col justify-center p-8 md:p-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#b99aff]">Axenora product · Android</p>
+              <h2 className="mt-5 text-4xl font-semibold leading-tight md:text-5xl">Meloqis Music</h2>
+              <p className="mt-5 max-w-xl text-base leading-7 text-white/64">
+                An open-source Android music player with an optional Now Capsule, designed for focused playback and expressive motion.
+              </p>
+              <span className="mt-8 inline-flex items-center text-sm font-semibold text-white">
+                Visit Meloqis <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </a>
         </div>
       </section>
 

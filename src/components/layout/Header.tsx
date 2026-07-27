@@ -150,6 +150,7 @@ export function Header() {
           ) : (
             // Logged out: Show Login and Register buttons
             <>
+              <a href="https://meloqis.axenoraai.in" target="_blank" rel="noreferrer" className="text-sm font-medium text-white/68 hover:text-white">Meloqis</a>
               <a href="https://empmetria.axenoraai.in" target="_blank" rel="noreferrer" className="text-sm font-medium text-white/68 hover:text-white">EmpMetria</a>
               <Link to="/contact"><Button className="rounded-md bg-[#bdf6d2] text-[#0c1413] hover:bg-[#9be7bb]">Start a project</Button></Link>
             </>
@@ -214,6 +215,15 @@ export function Header() {
                   )}
                 </div>
               ))}
+
+              <a
+                href="https://meloqis.axenoraai.in"
+                target="_blank"
+                rel="noreferrer"
+                className="block py-3 text-lg font-medium text-[#b99aff]"
+              >
+                Meloqis Music
+              </a>
               
               {/* Mobile Auth Buttons */}
               <div className="mt-4 space-y-2">
