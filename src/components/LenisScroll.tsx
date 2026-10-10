@@ -25,12 +25,13 @@ export function LenisScroll({ children }: LenisScrollProps) {
     lenisRef.current = lenis;
 
     // Animation frame loop
+    let frameId = 0;
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      frameId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    frameId = requestAnimationFrame(raf);
 
     // Parallax effect on scroll
     lenis.on('scroll', ({ scroll }: { scroll: number }) => {
@@ -77,6 +78,7 @@ export function LenisScroll({ children }: LenisScrollProps) {
     });
 
     return () => {
+      cancelAnimationFrame(frameId);
       lenis.destroy();
     };
   }, []);

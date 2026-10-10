@@ -3,10 +3,10 @@ import { Layout } from "@/components/layout/Layout";
 export default function Privacy() {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-20 max-w-4xl">
+      <div className="studio studio-legal"><div className="studio-wrap py-16 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
         <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
-          <p className="text-lg text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-muted-foreground">Privacy and data handling</p>
           
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Information We Collect</h2>
@@ -38,7 +38,7 @@ export default function Privacy() {
              <p>For any privacy-related concerns, please contact our Data Protection Officer at contact@axenoraai.in.</p>
           </section>
         </div>
-      </div>
+      </div></div>
     </Layout>
   );
 }

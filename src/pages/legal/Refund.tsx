@@ -3,10 +3,10 @@ import { Layout } from "@/components/layout/Layout";
 export default function Refund() {
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-20 max-w-4xl">
+      <div className="studio studio-legal"><div className="studio-wrap py-16 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8">Refund Policy</h1>
         <div className="prose prose-slate dark:prose-invert max-w-none space-y-6">
-          <p className="text-lg text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+          <p className="text-lg text-muted-foreground">Project cancellations and refunds</p>
           
           <section>
             <h2 className="text-2xl font-semibold mb-4">1. Satisfaction Guarantee</h2>
@@ -38,7 +38,7 @@ export default function Refund() {
              <p>To request a refund or cancellation, please email our billing department at contact@axenoraai.in with your order details.</p>
           </section>
         </div>
-      </div>
+      </div></div>
     </Layout>
   );
 }

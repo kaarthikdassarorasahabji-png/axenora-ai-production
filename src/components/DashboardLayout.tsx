@@ -40,12 +40,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="studio-workspace min-h-screen bg-background">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-4 left-4 z-50">
         <Button
           variant="outline"
           size="icon"
+          aria-label={sidebarOpen ? 'Close navigation' : 'Open navigation'}
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           {sidebarOpen ? <X /> : <Menu />}

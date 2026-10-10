@@ -29,7 +29,7 @@ const greeting: ChatMessage = {
   createdAt: Date.now(),
 };
 
-const quickPrompts = ["Monitor a remote team", "Build a CRM", "Automate office work", "Create a sales chatbot"];
+const quickPrompts = ["Explore Elvori", "Plan an AI calling agent", "Automate office work", "Create a sales chatbot"];
 
 function getSessionId() {
   const existing = localStorage.getItem(SESSION_KEY);
@@ -150,6 +150,7 @@ export function AIChatbot() {
       <AnimatePresence>
         {isOpen && (
           <motion.aside
+            data-lenis-prevent
             initial={{ opacity: 0, y: 18, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 18, scale: 0.97 }}
             className="fixed bottom-20 right-3 z-50 flex h-[min(76svh,42rem)] w-[calc(100vw-1.5rem)] max-w-[25rem] flex-col overflow-hidden rounded-md border border-white/10 bg-[#0c1413] text-white shadow-2xl sm:bottom-24 sm:right-24"
             aria-label="Axenora AI assistant"
@@ -174,7 +175,7 @@ export function AIChatbot() {
               </div>
             </header>
 
-            <div className="min-h-0 flex-1 touch-pan-y space-y-4 overflow-y-auto overscroll-contain px-4 py-4 [scrollbar-gutter:stable]" aria-live="polite">
+            <div className="min-h-0 flex-1 touch-pan-y space-y-4 overflow-y-auto overscroll-contain px-4 py-4 [scrollbar-gutter:stable]" aria-live="polite" aria-busy={isThinking}>
               {messages.map((message) => (
                 <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[88%] rounded-md px-3 py-2.5 text-sm leading-6 ${message.role === "user" ? "bg-[#bdf6d2] text-[#0c1413]" : "border border-white/10 bg-white/[0.06] text-white/82"}`}>

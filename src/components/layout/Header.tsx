@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 
 const solutions = [
+  { name: "Elvori", href: "/projects/elovri", detail: "Your private client workspace" },
+  { name: "AI Calling Agents", href: "/projects/calling", detail: "Voice workflows and human handoff" },
   { name: "EmpMetria", href: "/projects/empmetria", detail: "Workforce operations" },
   { name: "Employee Monitoring", href: "/projects/monitoring", detail: "24/7 workforce operations" },
   { name: "CRM Dashboards", href: "/projects/crm", detail: "Operations and hierarchy" },
@@ -61,6 +63,8 @@ export function Header() {
                   onMouseLeave={() => setSolutionsOpen(false)}
                 >
                   <button
+                    onClick={() => setSolutionsOpen(!solutionsOpen)}
+                    aria-expanded={solutionsOpen}
                     className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary ${
                       isActive(item.href) ? "text-[#bdf6d2]" : "text-white/68"
                     }`}
@@ -159,6 +163,8 @@ export function Header() {
 
         {/* Mobile Menu Button */}
         <button
+          aria-label={mobileMenuOpen ? "Close navigation" : "Open navigation"}
+          aria-expanded={mobileMenuOpen}
           className="lg:hidden p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >

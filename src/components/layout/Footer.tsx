@@ -3,6 +3,8 @@ import { Mail, Phone, MapPin, Linkedin, Twitter, Instagram } from "lucide-react"
 
 const footerLinks = {
   solutions: [
+    { name: "Elvori", href: "/projects/elovri" },
+    { name: "AI Calling Agents", href: "/projects/calling" },
     { name: "Meloqis Music", href: "https://meloqis.axenoraai.in" },
     { name: "EmpMetria", href: "/projects/empmetria" },
     { name: "CRM Dashboards", href: "/projects/crm" },

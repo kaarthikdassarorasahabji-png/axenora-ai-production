@@ -42,7 +42,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-secondary/5 p-4">
+    <div className="studio-auth min-h-screen flex flex-col gap-8 items-center justify-center p-4">
+      <Link to="/" className="studio-auth-brand"><img src="/favicon-32x32.png" alt="" />Axenora AI</Link>
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
@@ -87,6 +88,7 @@ export default function Login() {
                   required
                 />
                 <button
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"

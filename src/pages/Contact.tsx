@@ -11,6 +11,7 @@ import { API_BASE_URL as API_CONFIG } from "@/lib/api";
 import { Mail, MessageCircle, Phone, Send, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import crmLiveCeo from "@/assets/proof/crm-live-ceo-web.jpg";
+import { Intro } from '@/components/Studio';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -24,6 +25,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const systemTypes = [
+  "Elvori client workspace",
+  "AI calling agent",
   "EmpMetria rollout",
   "CRM dashboard",
   "Employee monitoring",
@@ -81,26 +84,10 @@ const ContactPage = () => {
 
   return (
     <Layout>
-      <main className="bg-[#f4f0e8] text-[#10151f]">
-        <section className="relative overflow-hidden bg-[#10151f] py-24 text-white md:py-32">
-          <div className="absolute inset-0">
-            <img src={crmLiveCeo} alt="CRM dashboard contact background" className="h-full w-full object-cover opacity-30" />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,21,31,0.98),rgba(16,21,31,0.72))]" />
-          </div>
-          <div className="container-custom relative">
-            <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#a9ffcb]">Contact</p>
-              <h1 className="mt-5 text-5xl font-semibold leading-tight md:text-7xl">
-                Tell us the workflow. We will map the system.
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-white/72">
-                Use this form for CRM dashboards, employee monitoring, custom chatbots, WhatsApp automation, Instagram automation or a full operating system.
-              </p>
-            </motion.div>
-          </div>
-        </section>
+      <div className="studio studio-contact bg-[#f8f9fa] text-[#10151f]">
+        <Intro label="Contact" title="Let's make the next step clear." text="Tell us what's getting missed, what tools you use and what your team needs. We'll discuss a practical scope together." />
 
-        <section className="container-custom py-24">
+        <section className="studio-wrap pb-20">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
             <aside className="space-y-4">
               {[
@@ -119,7 +106,7 @@ const ContactPage = () => {
               <div className="rounded-md bg-[#10151f] p-6 text-white">
                 <ShieldCheck className="h-6 w-6 text-[#a9ffcb]" />
                 <h2 className="mt-5 text-2xl font-semibold">What to include</h2>
-                <p className="mt-3 text-sm leading-6 text-white/68">
+                <p className="mt-3 text-sm leading-6 !text-white/75">
                   Mention the team roles, current tools, repeated tasks, integrations, and what you want monitored or automated.
                 </p>
               </div>
@@ -130,17 +117,17 @@ const ContactPage = () => {
               <div className="grid gap-5 md:grid-cols-2">
                 <label className="space-y-2">
                   <span className="text-sm font-semibold">Name</span>
-                  <Input {...register("name")} placeholder="Your name" />
+                  <Input {...register("name")} placeholder="Your name" autoComplete="name" />
                   {errors.name && <span className="text-xs text-red-600">{errors.name.message}</span>}
                 </label>
                 <label className="space-y-2">
                   <span className="text-sm font-semibold">Email</span>
-                  <Input type="email" {...register("email")} placeholder="you@company.com" />
+                  <Input type="email" {...register("email")} placeholder="you@company.com" autoComplete="email" />
                   {errors.email && <span className="text-xs text-red-600">{errors.email.message}</span>}
                 </label>
                 <label className="space-y-2">
                   <span className="text-sm font-semibold">Phone</span>
-                  <Input {...register("phone")} placeholder="+91 90000 00000" />
+                  <Input type="tel" {...register("phone")} placeholder="+91 90000 00000" autoComplete="tel" />
                 </label>
                 <label className="space-y-2">
                   <span className="text-sm font-semibold">System type</span>
@@ -166,7 +153,7 @@ const ContactPage = () => {
             </form>
           </div>
         </section>
-      </main>
+      </div>
     </Layout>
   );
 };

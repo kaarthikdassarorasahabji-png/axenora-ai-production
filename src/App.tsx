@@ -16,22 +16,23 @@ import { AdminProtectedRoute } from '@/components/AdminProtectedRoute';
 import { SEOManager } from '@/components/SEOManager';
 import { ScrollToTop } from '@/components/ScrollToTop';
 
-const Index = lazy(() => import("./pages/Index"));
-const Solutions = lazy(() => import("./pages/Solutions"));
-const Pricing = lazy(() => import("./pages/Pricing"));
-const About = lazy(() => import("./pages/About"));
+const Index = lazy(() => import("./pages/StudioHome"));
+const Solutions = lazy(() => import("./pages/StudioPages").then(m => ({ default: m.Solutions })));
+const Pricing = lazy(() => import("./pages/StudioPricing"));
+const About = lazy(() => import("./pages/StudioPages").then(m => ({ default: m.About })));
 const Contact = lazy(() => import("./pages/Contact"));
-const HowItWorks = lazy(() => import("./pages/HowItWorks"));
-const Features = lazy(() => import("./pages/Features"));
-const Empmetria = lazy(() => import("./pages/projects/Empmetria"));
-const ProjectDetail = lazy(() => import("./pages/projects/ProjectDetail"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+const HowItWorks = lazy(() => import("./pages/StudioPages").then(m => ({ default: m.Process })));
+const Features = lazy(() => import("./pages/StudioPages").then(m => ({ default: m.Capabilities })));
+const Empmetria = lazy(() => import("./pages/StudioPages").then(m => ({ default: () => <m.Project projectSlug="empmetria" /> })));
+const ProjectDetail = lazy(() => import("./pages/StudioPages").then(m => ({ default: m.Project })));
+const NotFound = lazy(() => import("./pages/StudioNotFound"));
 const PaymentGateway = lazy(() => import("./pages/PaymentGateway"));
 const Terms = lazy(() => import("./pages/legal/Terms"));
 const Privacy = lazy(() => import("./pages/legal/Privacy"));
 const Refund = lazy(() => import("./pages/legal/Refund"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
+const PasswordReset = lazy(() => import('./pages/PasswordReset'));
 const Dashboard = lazy(() => import("@/pages/dashboard/Dashboard"));
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'));
 const AdminDashboard = lazy(() => import('@/pages/admin/AdminDashboard'));
@@ -70,7 +71,7 @@ const App = () => (
                 <Route path="/solutions/ads" element={<Navigate to="/projects/instagram" replace />} />
                 <Route path="/solutions/whatsapp" element={<Navigate to="/projects/whatsapp" replace />} />
                 <Route path="/solutions/chatbots" element={<Navigate to="/projects/chatbots" replace />} />
-                <Route path="/solutions/calling" element={<Navigate to="/projects/office-automation" replace />} />
+                <Route path="/solutions/calling" element={<Navigate to="/projects/calling" replace />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
@@ -82,6 +83,8 @@ const App = () => (
                 {/* Auth Routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/forgot-password" element={<PasswordReset />} />
+                <Route path="/reset-password" element={<PasswordReset reset />} />
 
                 {/* User Dashboard Routes (Path-based) */}
                 <Route

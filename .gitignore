@@ -39,6 +39,7 @@ out
 
 # Testing
 coverage
+test-artifacts/
 .nyc_output
 
 # Misc
@@ -64,3 +65,4 @@ coverage
 
 .vercel
 .env*
+.env*.local

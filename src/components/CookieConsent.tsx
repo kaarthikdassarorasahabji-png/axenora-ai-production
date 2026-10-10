@@ -12,7 +12,8 @@ export function CookieConsent() {
     const consent = Cookies.get('cookie-consent');
     if (!consent) {
       // Show banner after 1 second
-      setTimeout(() => setShowBanner(true), 1000);
+      const timeout = setTimeout(() => setShowBanner(true), 1000);
+      return () => clearTimeout(timeout);
     }
   }, []);
 
@@ -34,10 +35,10 @@ export function CookieConsent() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-0 left-0 right-0 z-[9998] p-4 md:p-6"
+          className="fixed bottom-20 left-4 z-40 w-[calc(100%-2rem)] max-w-2xl"
         >
           <div className="container-custom">
-            <div className="glass rounded-2xl p-6 md:p-8 border border-border shadow-2xl max-w-4xl mx-auto">
+            <div className="relative rounded-md bg-[#192725] text-white p-5 border border-white/15 shadow-lg max-w-2xl mx-auto">
               <button
                 onClick={declineCookies}
                 className="absolute top-4 right-4 p-2 rounded-lg hover:bg-secondary/50 transition-colors"
@@ -56,13 +57,12 @@ export function CookieConsent() {
 
                 {/* Content */}
                 <div className="flex-grow">
-                  <h3 className="text-lg font-semibold mb-2">We Value Your Privacy</h3>
+                  <h3 className="text-base font-semibold mb-2">Privacy preferences</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    We use cookies to enhance your browsing experience, serve personalized content, 
-                    and analyze our traffic. By clicking "Accept All", you consent to our use of cookies.
+                    Sign-in uses essential storage. Chat history stays on this device until you clear it. Read how we handle your information.
                     {' '}
-                    <a href="#" className="text-primary hover:underline">
-                      Learn more
+                    <a href="/privacy" className="text-[#c5f5df] hover:underline">
+                      Privacy policy
                     </a>
                   </p>
                 </div>
@@ -78,9 +78,9 @@ export function CookieConsent() {
                   </Button>
                   <Button
                     onClick={acceptCookies}
-                    className="bg-gradient-to-r from-primary to-accent hover:opacity-90 whitespace-nowrap"
+                    className="bg-[#c5f5df] text-[#192725] hover:bg-[#a8e9cb] whitespace-nowrap"
                   >
-                    Accept All
+                    Accept
                   </Button>
                 </div>
               </div>

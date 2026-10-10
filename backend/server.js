@@ -101,6 +101,9 @@ app.get('*', (req, res, next) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
+  if (err.type === 'entity.parse.failed') {
+    return res.status(400).json({ success: false, message: 'Send a valid JSON request body.' });
+  }
   console.error(err.stack);
   res.status(err.status || 500).json({
     success: false,

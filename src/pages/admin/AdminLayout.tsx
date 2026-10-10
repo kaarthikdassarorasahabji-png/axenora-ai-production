@@ -36,7 +36,7 @@ export default function AdminLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="studio-workspace min-h-screen bg-background flex flex-col">
       {/* Top Navigation */}
       <header className="fixed top-0 left-0 right-0 h-16 border-b bg-background/95 backdrop-blur z-50 px-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
