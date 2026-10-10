@@ -84,6 +84,11 @@ export const pageSEO: Record<string, { title: string; description: string }> = {
     title: "Privacy Policy | Axenora AI",
     description: "How Axenora AI handles website and service data.",
   },
+  "/projects/meloqis": {
+    title: "Meloqis Music | Android Music Player by Axenora AI",
+    description:
+      "Discover Meloqis Music: synced lyrics, flexible queues, artwork-adaptive colors, equalizer, sleep timer and supported offline listening on Android.",
+  },
   "/terms": {
     title: "Terms of Service | Axenora AI",
     description: "Terms for using Axenora AI websites and services.",

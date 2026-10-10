@@ -18,7 +18,7 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 pt-[64px]">{children}</main>
+      <main className="flex-1 pt-[64px] min-[601px]:pt-[72px]">{children}</main>
       <Footer />
       <ScrollToTop />
     </div>

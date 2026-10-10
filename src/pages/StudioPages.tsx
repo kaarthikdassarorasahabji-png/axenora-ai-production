@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Search, ArrowLeft } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import {
   Action,
@@ -7,22 +8,78 @@ import {
   FinalCTA,
   Intro,
   ProductGrid,
+  ProductVisual,
+  Reveal,
 } from "@/components/Studio";
-import { products } from "@/lib/catalog";
+import { products, projectGuides } from "@/lib/catalog";
 import NotFound from "@/pages/StudioNotFound";
-import office from "@/assets/empmetria/operations-team.jpg";
 
 export function Solutions() {
+  const [group, setGroup] = useState("All systems");
+  const [query, setQuery] = useState("");
+  const groups = {
+    "All systems": products.map((p) => p.slug),
+    "Customer experience": [
+      "chatbots",
+      "calling",
+      "whatsapp",
+      "instagram",
+      "crm",
+    ],
+    Workforce: ["empmetria", "monitoring"],
+    Operations: ["elovri", "crm", "office-automation"],
+    Music: ["meloqis"],
+  };
+  const filtered = products.filter(
+    (p) =>
+      groups[group as keyof typeof groups].includes(p.slug) &&
+      `${p.name} ${p.summary} ${p.features.join(" ")}`
+        .toLowerCase()
+        .includes(query.toLowerCase()),
+  );
   return (
     <Layout>
       <div className="studio">
         <Intro
           label="Products & custom builds"
-          title="The right system for the work."
-          text="Client workspaces, workforce platforms, customer conversations and operational workflows. Explore a focused product or discuss a connected implementation."
+          title="Software for your next chapter."
+          text="Explore the Axenora ecosystem. Customer conversations, team visibility and connected operations, built around your business."
         />
         <section className="studio-wrap studio-section">
-          <ProductGrid />
+          <div className="project-filter">
+            <div className="filter-options" aria-label="Filter solutions">
+              {Object.keys(groups).map((name) => (
+                <button
+                  key={name}
+                  aria-pressed={group === name}
+                  onClick={() => setGroup(name)}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+            <label className="project-search">
+              <Search size={17} />
+              <input
+                aria-label="Search solutions"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Find a system..."
+                type="search"
+              />
+            </label>
+          </div>
+          <p className="sr-only" aria-live="polite">
+            {filtered.length} systems found
+          </p>
+          <ProductGrid items={filtered} />
+          {!filtered.length && (
+            <div className="project-empty">
+              <h2>No matching systems.</h2>
+              <p>Try a different search, or tell us what you need.</p>
+              <Action />
+            </div>
+          )}
         </section>
         <FinalCTA />
       </div>
@@ -34,9 +91,16 @@ export function Project({ projectSlug }: { projectSlug?: string }) {
   const product = products.find((item) => item.slug === (projectSlug || slug));
   if (!product) return <NotFound />;
   const external = "external" in product ? product.external : undefined;
+  const guide = projectGuides[product.slug];
   return (
     <Layout>
       <div className="studio">
+        <div className="studio-wrap project-back">
+          <Link className="studio-text-link" to="/solutions">
+            <ArrowLeft size={15} />
+            All systems
+          </Link>
+        </div>
         <Intro
           label={product.category}
           title={product.name}
@@ -44,15 +108,10 @@ export function Project({ projectSlug }: { projectSlug?: string }) {
         />
         <section className="studio-wrap studio-project-intro">
           <div className="studio-project-visual">
-            <img
-              src={product.image}
-              alt={`${product.name} overview`}
-              fetchPriority="high"
-            />
+            <ProductVisual slug={product.slug} name={product.name} />
             <p>
-              {external
-                ? "Product website overview"
-                : "Illustrative product visual. The implementation is scoped to your business."}
+              Workflow concept. Features and integrations are scoped to your
+              implementation.
             </p>
           </div>
           <div>
@@ -80,6 +139,33 @@ export function Project({ projectSlug }: { projectSlug?: string }) {
             )}
           </div>
         </section>
+        <section className="project-context">
+          <div className="studio-wrap">
+            <Reveal>
+              <div>
+                <p className="studio-label">Where it fits</p>
+                <h2>
+                  A useful system.
+                  <br />
+                  For a specific need.
+                </h2>
+                <p>{guide.fit}</p>
+              </div>
+            </Reveal>
+            <Reveal>
+              <div>
+                <p className="studio-label">Connections & configuration</p>
+                <div className="connection-list">
+                  {guide.connections.map((item) => (
+                    <span key={item}>{item}</span>
+                  ))}
+                </div>
+                <h3>Clear boundaries. Human control.</h3>
+                <p>{guide.controls}</p>
+              </div>
+            </Reveal>
+          </div>
+        </section>
         <section className="studio-section studio-wrap">
           <p className="studio-label">From requirements to rollout</p>
           <h2>A practical implementation path.</h2>
@@ -96,7 +182,7 @@ export function Project({ projectSlug }: { projectSlug?: string }) {
           <p className="studio-label">Connect the next part</p>
           <div>
             {products
-              .filter((item) => item.slug !== slug)
+              .filter((item) => item.slug !== product.slug)
               .slice(0, 3)
               .map((item) => (
                 <Link
@@ -125,11 +211,21 @@ export function About() {
           text="A founder-led software studio connecting business operations, customer conversations and practical AI."
         />
         <section className="studio-wrap studio-project-intro">
-          <img
-            className="studio-about-image"
-            src={office}
-            alt="Team reviewing business software"
-          />
+          <Reveal>
+            <div className="studio-manifesto">
+              <span className="studio-label">The Axenora approach</span>
+              <h2>
+                People first.
+                <br />
+                <em>Systems second.</em>
+              </h2>
+              <div className="manifesto-lines">
+                <span>Listen closely.</span>
+                <span>Build thoughtfully.</span>
+                <span>Keep improving.</span>
+              </div>
+            </div>
+          </Reveal>
           <div>
             <p className="studio-label">Led by Kaarthik Dass Arora</p>
             <h2>

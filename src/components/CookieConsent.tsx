@@ -38,7 +38,7 @@ export function CookieConsent() {
           className="fixed bottom-20 left-4 z-40 w-[calc(100%-2rem)] max-w-2xl"
         >
           <div className="container-custom">
-            <div className="relative rounded-md bg-[#192725] text-white p-5 border border-white/15 shadow-lg max-w-2xl mx-auto">
+            <div className="relative rounded-md bg-white text-[#252629] p-5 border border-black/10 shadow-lg max-w-2xl mx-auto">
               <button
                 onClick={declineCookies}
                 className="absolute top-4 right-4 p-2 rounded-lg hover:bg-secondary/50 transition-colors"
@@ -58,10 +58,10 @@ export function CookieConsent() {
                 {/* Content */}
                 <div className="flex-grow">
                   <h3 className="text-base font-semibold mb-2">Privacy preferences</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-[#68696c] leading-relaxed">
                     Sign-in uses essential storage. Chat history stays on this device until you clear it. Read how we handle your information.
                     {' '}
-                    <a href="/privacy" className="text-[#c5f5df] hover:underline">
+                    <a href="/privacy" className="text-[#b93729] hover:underline">
                       Privacy policy
                     </a>
                   </p>
@@ -78,7 +78,7 @@ export function CookieConsent() {
                   </Button>
                   <Button
                     onClick={acceptCookies}
-                    className="bg-[#c5f5df] text-[#192725] hover:bg-[#a8e9cb] whitespace-nowrap"
+                    className="bg-[#b93729] text-white hover:bg-[#992a20] whitespace-nowrap"
                   >
                     Accept
                   </Button>

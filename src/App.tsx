@@ -58,7 +58,7 @@ const App = () => (
             <BrowserRouter>
               <SEOManager />
               <ScrollToTop />
-              <Suspense fallback={<div className="min-h-screen bg-[#0c1413]" />}>
+              <Suspense fallback={<div className="min-h-screen bg-white" />}>
               <Routes>
                 {/* Marketing Routes */}
                 <Route path="/" element={<Index />} />

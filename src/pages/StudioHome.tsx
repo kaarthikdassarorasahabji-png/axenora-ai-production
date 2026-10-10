@@ -1,184 +1,258 @@
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { ArrowUpRight, PhoneCall, MessageSquare, Workflow } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import {
+  ArrowUpRight,
+  ArrowDown,
+  PhoneCall,
+  MessageSquare,
+  Workflow,
+} from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
-import { Action, FinalCTA, ProductGrid, Reveal } from "@/components/Studio";
-import { faqs } from "@/lib/catalog";
-import office from "@/assets/empmetria/operations-team.jpg";
+import {
+  Action,
+  FinalCTA,
+  ProductGrid,
+  ProductVisual,
+  Reveal,
+} from "@/components/Studio";
+import { faqs, products } from "@/lib/catalog";
 
 export default function StudioHome() {
-  const services = [
-    {
-      icon: MessageSquare,
-      title: "Customer conversations",
-      text: "Useful answers across your website, WhatsApp and Instagram.",
-    },
-    {
-      icon: PhoneCall,
-      title: "AI calling workflows",
-      text: "Qualification, appointment requests and follow-up with a clear human handoff.",
-    },
-    {
-      icon: Workflow,
-      title: "Connected operations",
-      text: "CRM, workforce visibility and office workflows that share the same context.",
-    },
-  ];
+  const reduce = useReducedMotion();
   return (
     <Layout>
       <div className="studio">
         <section className="studio-hero">
           <img
             className="studio-hero-image"
-            src={office}
-            alt="Team reviewing a workforce operations dashboard"
+            src="/images/studio-hero-v2.jpg"
+            alt="Product designers collaborating in a bright software studio"
             fetchPriority="high"
           />
           <div className="studio-hero-shade" />
           <div className="studio-wrap studio-hero-content">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: reduce ? 0 : 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55 }}
+              transition={{ duration: 0.7 }}
             >
               <p className="studio-label">
-                Independent software & automation studio
+                <span />
+                Business software. Thoughtfully connected.
               </p>
-              <h1>Axenora AI</h1>
+              <h1>
+                Axenora AI<span className="hero-period">.</span>
+              </h1>
               <p className="studio-hero-statement">
-                A better way to run
+                Make room for
                 <br />
-                the work behind your business.
+                <em>better work.</em>
               </p>
               <p className="studio-hero-description">
-                Custom AI chatbots, calling agents and connected business
-                systems. Built around your customers, your team and your next
-                step.
+                AI conversations, smarter operations and software built around
+                the way your business moves.
               </p>
               <div className="studio-hero-actions">
                 <Action />
                 <a className="studio-text-link" href="#projects">
-                  Explore our work
-                  <ArrowUpRight size={18} />
+                  Discover our systems
+                  <ArrowDown size={16} />
                 </a>
               </div>
             </motion.div>
           </div>
+          <div className="hero-bottom">
+            <span>Built for people. Connected by software.</span>
+            <span>
+              Explore what comes next <ArrowDown size={15} />
+            </span>
+          </div>
         </section>
         <section className="studio-overview studio-wrap">
-          <p className="studio-label">Less chasing. More progress.</p>
-          <h2>
-            Conversations become actions.
-            <br />
-            Teams stay connected.
-          </h2>
+          <Reveal>
+            <div className="studio-section-heading">
+              <p className="studio-label">01 / What we build</p>
+              <h2>
+                Every part of your business.
+                <br />
+                <span className="studio-muted">Working better together.</span>
+              </h2>
+            </div>
+          </Reveal>
           <div className="studio-services">
-            {services.map(({ icon: Icon, title, text }) => (
-              <div key={title}>
-                <Icon size={25} />
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </div>
+            {[
+              {
+                icon: MessageSquare,
+                title: "Conversations that help",
+                text: "Custom chatbots, WhatsApp and Instagram automation that guide customers and connect them to your team.",
+                link: "/projects/chatbots",
+              },
+              {
+                icon: PhoneCall,
+                title: "A voice for your business",
+                text: "AI calling workflows for inquiries, qualification and appointment requests, with human handoff built in.",
+                link: "/projects/calling",
+              },
+              {
+                icon: Workflow,
+                title: "Operations in sync",
+                text: "CRM, workforce visibility and office workflows. Clear ownership, connected information and fewer loose ends.",
+                link: "/projects/crm",
+              },
+            ].map(({ icon: Icon, title, text, link }, i) => (
+              <Reveal key={title}>
+                <Link className="service-item" to={link}>
+                  <div className="service-top">
+                    <Icon size={24} />
+                    <span>0{i + 1}</span>
+                  </div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                  <ArrowUpRight className="service-arrow" size={23} />
+                </Link>
+              </Reveal>
             ))}
           </div>
         </section>
-        <section id="projects" className="studio-section studio-wrap">
+        <section id="projects" className="studio-featured">
+          <div className="studio-wrap">
+            <div className="studio-section-heading">
+              <div>
+                <p className="studio-label">02 / Selected systems</p>
+                <h2>
+                  Built around
+                  <br />
+                  real business needs.
+                </h2>
+              </div>
+              <Link className="studio-text-link" to="/solutions">
+                All products & services
+                <ArrowUpRight size={18} />
+              </Link>
+            </div>
+            {products
+              .filter((p) => ["empmetria", "chatbots", "crm"].includes(p.slug))
+              .map((p, i) => (
+                <Reveal key={p.slug}>
+                  <article
+                    className={`featured-project ${i % 2 ? "featured-reverse" : ""}`}
+                  >
+                    <Link
+                      className="featured-visual"
+                      to={`/projects/${p.slug}`}
+                    >
+                      <ProductVisual slug={p.slug} name={p.name} />
+                    </Link>
+                    <div className="featured-copy">
+                      <p className="studio-label">{p.category}</p>
+                      <h3>{p.name}</h3>
+                      <p>{p.summary}</p>
+                      <ul>
+                        {p.features.slice(0, 3).map((f) => (
+                          <li key={f}>{f}</li>
+                        ))}
+                      </ul>
+                      <Link
+                        className="studio-text-link"
+                        to={`/projects/${p.slug}`}
+                      >
+                        Explore the system
+                        <ArrowUpRight size={18} />
+                      </Link>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+          </div>
+        </section>
+        <section className="studio-section studio-wrap">
           <div className="studio-section-heading">
             <div>
-              <p className="studio-label">The Axenora portfolio</p>
+              <p className="studio-label">03 / More possibilities</p>
               <h2>
-                Built for the work
+                Your next workflow.
                 <br />
-                you actually do.
+                <span className="studio-muted">Already taking shape.</span>
               </h2>
             </div>
             <p>
-              Explore the products and custom systems behind better customer
-              support, clearer operations and more useful automation.
+              From a first customer message to an internal approval, explore the
+              rest of the Axenora ecosystem.
             </p>
           </div>
-          <ProductGrid />
+          <ProductGrid
+            items={products.filter(
+              (p) =>
+                !["empmetria", "chatbots", "crm", "elovri"].includes(p.slug),
+            )}
+          />
         </section>
         <section className="studio-elovri">
-          <div className="studio-wrap">
+          <div className="studio-wrap elovri-layout">
             <Reveal>
-              <div className="studio-section-heading">
-                <div>
-                  <p className="studio-label">Meet Elvori</p>
-                  <h2>
-                    Your project.
-                    <br />A shared view.
-                  </h2>
-                </div>
-                <div>
-                  <p>
-                    Bring us your business challenge. Review the proposal,
-                    follow milestones and keep documents, feedback and decisions
-                    together in your private workspace.
-                  </p>
-                  <a
-                    href="https://elovri.axenoraai.in"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="studio-text-link"
-                  >
-                    Explore Elvori
-                    <ArrowUpRight size={18} />
-                  </a>
-                </div>
-              </div>
+              <p className="studio-label">Meet Elvori / Client collaboration</p>
+              <h2>
+                A place for
+                <br />
+                <em>your next idea.</em>
+              </h2>
+              <p>
+                Share a challenge. Review a tailored proposal. Keep milestones,
+                documents and decisions together in your private client
+                workspace.
+              </p>
               <a
-                className="studio-elovri-image"
                 href="https://elovri.axenoraai.in"
                 target="_blank"
                 rel="noreferrer"
+                className="studio-action"
               >
-                <img
-                  src="/images/elovri-site.jpg"
-                  alt="Elvori by Axenora: business requests and private client workspaces"
-                  loading="lazy"
-                />
+                Explore Elvori
+                <ArrowUpRight size={18} />
               </a>
+            </Reveal>
+            <Reveal>
+              <ProductVisual slug="elovri" name="Elvori" />
             </Reveal>
           </div>
         </section>
         <section className="studio-section studio-wrap">
           <div className="studio-section-heading">
             <div>
-              <p className="studio-label">How we work</p>
+              <p className="studio-label">04 / From idea to everyday</p>
               <h2>
-                A clear path
+                Good systems start
                 <br />
-                from idea to use.
+                with a conversation.
               </h2>
             </div>
             <Link className="studio-text-link" to="/how-it-works">
-              Our process
+              The way we work
               <ArrowUpRight size={18} />
             </Link>
           </div>
           <ol className="studio-steps">
             {[
-              ["Understand", "The current workflow, people and friction."],
-              ["Define", "The scope, permissions and useful outcome."],
-              ["Build", "The interface, integrations and automation."],
-              ["Refine", "Test real scenarios and review the results."],
-            ].map(([title, description], i) => (
+              ["Listen", "Understand your people, tools and workflows."],
+              ["Define", "Agree a clear scope and useful outcome."],
+              ["Build", "Design the experience and connect the systems."],
+              ["Refine", "Test, launch and improve with real feedback."],
+            ].map(([title, text], i) => (
               <li key={title}>
                 <span>0{i + 1}</span>
                 <h3>{title}</h3>
-                <p>{description}</p>
+                <p>{text}</p>
               </li>
             ))}
           </ol>
         </section>
         <section className="studio-faq studio-wrap">
           <div>
-            <p className="studio-label">Before we begin</p>
+            <p className="studio-label">A little clarity</p>
             <h2>
-              Good questions.
+              Before we
               <br />
-              Clear answers.
+              get started.
             </h2>
           </div>
           <div>

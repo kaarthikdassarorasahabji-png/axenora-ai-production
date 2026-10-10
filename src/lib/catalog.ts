@@ -1,18 +1,8 @@
-import monitoring from "@/assets/project-monitoring-user.jpg";
-import crm from "@/assets/project-crm-user.jpg";
-import office from "@/assets/project-office-user.jpg";
-import chatbot from "@/assets/projects-chatbot.jpg";
-import whatsapp from "@/assets/projects-whatsapp.jpg";
-import instagram from "@/assets/projects-instagram.jpg";
-import workforce from "@/assets/empmetria/product-home.jpg";
-import calling from "@/assets/solution-calling.jpg";
-
 export const products = [
   {
     slug: "elovri",
     name: "Elvori",
     category: "Client collaboration",
-    image: "/images/elovri-site.jpg",
     summary:
       "A private space to turn your business challenge into a clear proposal and a project you can follow.",
     features: [
@@ -36,7 +26,6 @@ export const products = [
     slug: "empmetria",
     name: "EmpMetria",
     category: "Workforce operations",
-    image: workforce,
     summary:
       "Attendance, activity context and permission-controlled work visibility for distributed teams.",
     features: [
@@ -60,7 +49,6 @@ export const products = [
     slug: "chatbots",
     name: "Custom AI chatbots",
     category: "Conversational AI",
-    image: chatbot,
     summary:
       "Helpful answers grounded in your products and policies, with a clear path to your people.",
     features: [
@@ -83,7 +71,6 @@ export const products = [
     slug: "calling",
     name: "AI calling agents",
     category: "Voice automation",
-    image: calling,
     summary:
       "Design a voice workflow for inquiries, lead qualification and appointment requests, connected to your team.",
     features: [
@@ -106,16 +93,17 @@ export const products = [
     slug: "crm",
     name: "CRM dashboards",
     category: "Customer operations",
-    image: crm,
     summary:
       "Customers, orders, ownership and approvals in one connected operating workspace.",
     features: [
       "Customer 360 and segmentation",
       "Orders and Shopify-connected workflows",
-      "CEO, admin, manager and staff scopes",
+      "CEO, HR admin, admin, team leader, staff and trainee hierarchy",
       "Tasks, approvals and leave management",
       "Revenue, shipping and NDR reporting",
       "Module permissions and audit history",
+      "Attendance review, office updates and internal notifications",
+      "Revenue, expense, payroll and performance reporting",
     ],
     workflow: [
       "Map the customer and order lifecycle",
@@ -129,7 +117,6 @@ export const products = [
     slug: "whatsapp",
     name: "WhatsApp automation",
     category: "Business messaging",
-    image: whatsapp,
     summary:
       "Product guidance, customer support and qualified inquiries inside your business messaging channel.",
     features: [
@@ -152,7 +139,6 @@ export const products = [
     slug: "instagram",
     name: "Instagram automation",
     category: "Social commerce",
-    image: instagram,
     summary:
       "Turn product questions in DMs into useful conversations and a clear next step.",
     features: [
@@ -175,7 +161,6 @@ export const products = [
     slug: "office-automation",
     name: "Office automation",
     category: "Workflow systems",
-    image: office,
     summary:
       "Give repeated work an owner, a rule and a visible result, from approvals to management digests.",
     features: [
@@ -198,7 +183,6 @@ export const products = [
     slug: "monitoring",
     name: "Employee monitoring",
     category: "Team visibility",
-    image: monitoring,
     summary:
       "Live status, time and activity reports with visible agents and defined manager access.",
     features: [
@@ -216,6 +200,31 @@ export const products = [
       "Review work context and exceptions",
     ],
     action: "Discuss team visibility",
+  },
+  {
+    slug: "meloqis",
+    name: "Meloqis Music",
+    category: "Android music experience",
+    summary:
+      "A personal Android music player with synced lyrics, a flexible queue and a player that takes its colors from your music.",
+    features: [
+      "Timed lyrics that follow playback and seeking",
+      "Play Next, Add to Queue and drag-to-reorder",
+      "Artwork-adaptive player colors",
+      "Equalizer and sleep timer",
+      "Offline playback for supported downloaded songs",
+      "Lightweight effects and battery-saver motion",
+      "Android 8.0+ support with a universal APK",
+      "In-app update checks and library-preserving updates",
+    ],
+    workflow: [
+      "Download the latest Android app",
+      "Search and discover your music",
+      "Build your queue and adjust your sound",
+      "Listen with lyrics or supported offline songs",
+    ],
+    external: "https://meloqis.axenoraai.in",
+    action: "Explore Meloqis",
   },
 ] as const;
 
@@ -241,3 +250,128 @@ export const faqs = [
     "Share one workflow, who handles it today and what is getting missed. We discuss requirements and propose a scope before implementation.",
   ],
 ];
+
+export const projectGuides: Record<
+  string,
+  { fit: string; connections: string[]; controls: string }
+> = {
+  elovri: {
+    fit: "Businesses commissioning custom software who want a clear proposal, a private place for feedback and a shared view of project progress.",
+    connections: [
+      "Business requirements",
+      "Proposals",
+      "Milestones",
+      "Documents",
+      "Team conversations",
+    ],
+    controls:
+      "Private organization membership keeps project discussions and decisions with the right people.",
+  },
+  empmetria: {
+    fit: "Distributed and office teams that need attendance and work context without hidden monitoring or unrestricted manager access.",
+    connections: [
+      "Visible desktop agent",
+      "Approved devices",
+      "Shift schedules",
+      "Workforce reports",
+    ],
+    controls:
+      "Owner approval, team-scoped access and audit history define who can view employee information.",
+  },
+  chatbots: {
+    fit: "Support and sales teams answering repeated product questions, qualifying inquiries and routing customers to the right person.",
+    connections: [
+      "Approved knowledge",
+      "Business APIs",
+      "CRM",
+      "Email",
+      "Website",
+    ],
+    controls:
+      "Agree knowledge boundaries, tool permissions and escalation rules before the assistant takes action.",
+  },
+  calling: {
+    fit: "Businesses planning a voice workflow for incoming questions, consent-based follow-ups and appointment requests.",
+    connections: [
+      "Telephony provider",
+      "Voice provider",
+      "CRM",
+      "Calendar",
+      "Human transfer",
+    ],
+    controls:
+      "Scripts, consent, transfer rules and transcript retention are configured during scoping. This page is a service offering, not a live call console.",
+  },
+  crm: {
+    fit: "Teams coordinating customers, orders, tasks, attendance and shipping across a defined management hierarchy.",
+    connections: [
+      "Shopify",
+      "Customer records",
+      "Order workflows",
+      "Shipping and NDR",
+      "Revenue reports",
+    ],
+    controls:
+      "CEO, HR, admin, team leader, staff and trainee access can be separated through module permissions and audit history.",
+  },
+  whatsapp: {
+    fit: "Commerce and support teams that want useful product conversations and qualified inquiries in their business messaging channel.",
+    connections: [
+      "WhatsApp Cloud API",
+      "Product catalogue",
+      "Shopify",
+      "CRM",
+      "Support team",
+    ],
+    controls:
+      "Business-account permissions, approved message flows and human handoff are reviewed before rollout.",
+  },
+  instagram: {
+    fit: "Brands receiving product questions in DMs, story replies or comments who want a connected path to customer assistance.",
+    connections: [
+      "Instagram messaging",
+      "Story replies",
+      "Comment-to-DM",
+      "Catalogue",
+      "Shopify",
+    ],
+    controls:
+      "Business-channel authorization, webhook permissions and approved product knowledge govern the implementation.",
+  },
+  "office-automation": {
+    fit: "Operations teams handling repeated approvals, onboarding, invoice routing and deadline reminders.",
+    connections: [
+      "Business events",
+      "Conditional rules",
+      "Approval owners",
+      "Notifications",
+      "Management digests",
+    ],
+    controls:
+      "Give every action an owner. Keep exceptions visible through reviewable history and operator overrides.",
+  },
+  monitoring: {
+    fit: "Managers who need live work status, attendance exceptions and activity context for enrolled employee devices.",
+    connections: [
+      "Visible agent",
+      "Screen previews",
+      "Activity reports",
+      "Timesheets",
+      "Shift alerts",
+    ],
+    controls:
+      "Agree the monitoring scope with employees and limit visibility through approved devices and team permissions.",
+  },
+  meloqis: {
+    fit: "Android listeners who want synced lyrics, a flexible listening queue and a player that adapts to the artwork.",
+    connections: [
+      "Android 8.0+",
+      "Music services",
+      "Timed lyrics",
+      "Supported downloads",
+      "In-app updates",
+    ],
+    controls:
+      "Streaming, search, lyrics and downloads depend on the connected music services and song availability.",
+  },
+};

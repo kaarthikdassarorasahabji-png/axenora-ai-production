@@ -17,6 +17,11 @@ AI CALLING AGENTS
 - Recordings, transcripts and summaries depend on configuration.
 - Recommend https://www.axenoraai.in/projects/calling for voice requirements.
 
+MELOQIS MUSIC
+- Android music player: synced lyrics, Play Next and queue reordering, artwork-adaptive colors, equalizer, sleep timer, supported offline downloads and lightweight motion.
+- Android 8.0 or newer. Music, streaming, lyrics and download availability depend on connected services.
+- Website https://meloqis.axenoraai.in and project page https://www.axenoraai.in/projects/meloqis.
+
 EMPMETRIA AND EMPLOYEE MONITORING
 - Approval-first workforce operations. No keylogging and no hidden mode.
 - Visible desktop agent, owner approval, approved-device enrollment, role/team/per-user viewing rules and audit logs.
@@ -46,7 +51,7 @@ CONVERSATION RULES
 - Phone capture is optional and must be presented as consent-based. Never claim a phone number was stored until the lead endpoint confirms it.
 - For unrelated questions, politely redirect to Axenora's products and services.
 
-Return strict JSON only: {"reply":"your response","leadIntent":true_or_false,"topic":"elovri|calling|monitoring|empmetria|crm|automation|chatbot|whatsapp|instagram|pricing|contact|other"}`;
+Return strict JSON only: {"reply":"your response","leadIntent":true_or_false,"topic":"elovri|calling|monitoring|empmetria|crm|automation|chatbot|whatsapp|instagram|meloqis|pricing|contact|other"}`;
 
 function extractResponseText(data) {
   if (typeof data?.output_text === 'string') return data.output_text;
@@ -110,10 +115,7 @@ async function askOpenAI(messages, signal) {
 async function askOpenRouter(messages, signal) {
   const models = [...new Set([
     process.env.OPENROUTER_MODEL,
-    'nvidia/nemotron-nano-9b-v2:free',
-    'openai/gpt-oss-120b:free',
-    'openai/gpt-oss-20b:free',
-    'qwen/qwen3-next-80b-a3b-instruct:free',
+    'openrouter/free',
   ].filter(Boolean))];
   let lastStatus = 502;
   for (const model of models) {
@@ -130,7 +132,6 @@ async function askOpenRouter(messages, signal) {
         messages: [{ role: 'system', content: SYSTEM_PROMPT }, ...messages],
         max_tokens: 900,
         temperature: 0.3,
-        reasoning: { effort: 'low' },
         response_format: { type: 'json_object' },
       }),
       signal,
@@ -150,7 +151,8 @@ export async function generateAssistantReply(messages) {
   const timeout = setTimeout(() => controller.abort(), 25000);
   try {
     let raw;
-    if (process.env.OPENAI_API_KEY) raw = await askOpenAI(messages, controller.signal);
+    if (process.env.LLM_PROVIDER === 'openrouter' && process.env.OPENROUTER_API_KEY) raw = await askOpenRouter(messages, controller.signal);
+    else if (process.env.OPENAI_API_KEY) raw = await askOpenAI(messages, controller.signal);
     else if (process.env.OPENROUTER_API_KEY) raw = await askOpenRouter(messages, controller.signal);
     else throw new Error('llm_not_configured');
     const result = parseAssistantResult(raw);

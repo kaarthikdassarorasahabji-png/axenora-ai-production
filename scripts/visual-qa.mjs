@@ -19,6 +19,7 @@ const routes = [
   "/projects/instagram",
   "/projects/office-automation",
   "/projects/monitoring",
+  "/projects/meloqis",
   "/privacy",
   "/terms",
   "/refund",
