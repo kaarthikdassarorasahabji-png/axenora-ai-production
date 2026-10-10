@@ -27,4 +27,5 @@ for (const prompt of ['What is Elvori and where can I visit it?', 'What can an A
 }
 const services = await fetch(`${base}/api/services`, { signal: AbortSignal.timeout(20000) });
 console.log(`Database-backed service endpoint: HTTP ${services.status}`);
+assert.equal(services.status, 200, 'Database-backed services must work before declaring full production readiness.');
 console.log('API health, JSON validation, lead validation and live LLM responses verified.');

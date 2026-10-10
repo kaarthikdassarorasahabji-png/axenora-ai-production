@@ -105,12 +105,14 @@ try {
     .first()
     .click();
   await page.waitForURL("**/projects/calling");
+  await page.getByRole("heading", { name: "AI calling agents", exact: true }).waitFor();
   assert.equal(await page.evaluate(() => scrollY), 0);
   await page.getByRole("button", { name: "Open AI assistant" }).click();
   await page
     .getByRole("button", { name: "Create a sales chatbot", exact: true })
     .click();
-  await page
+  const assistant = page.locator('[aria-label="Axenora AI assistant"]');
+  await assistant
     .getByText("Elvori is the Axenora client workspace", { exact: false })
     .waitFor();
   const pane = page
@@ -127,7 +129,7 @@ try {
   assert.equal(await pane.evaluate((element) => element.scrollTop), 0);
   await page.getByRole("button", { name: "Clear chat", exact: true }).click();
   assert.equal(
-    await page
+    await assistant
       .getByText("Elvori is the Axenora client workspace", { exact: false })
       .count(),
     0,
